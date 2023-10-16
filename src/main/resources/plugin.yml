@@ -1,0 +1,40 @@
+name: KitPvP
+version: 1.0
+api-version: 1.13
+author: [YourName]
+main: kitpvp.kitpvp.Main
+description: A KitPvP plugin with premium kits and economy features.
+
+commands:
+  coins:
+    description: Check your coin balance.
+    usage: /<command>
+  addcoins:
+    description: Add coins to a player's balance.
+    usage: /<command> <player> <amount>
+    permission: kitpvp.addcoins
+  removecoins:
+    description: Remove coins from a player's balance.
+    usage: /<command> <player> <amount>
+    permission: kitpvp.removecoins
+  setspawn:
+    description: Sets the spawn location for the server.
+    usage: /<command>
+    permission: essentials.setspawn
+  spawn:
+    description: Teleports the player to the spawn location after a 3-second delay.
+    permission: essentials.spawn
+  fly:
+    description: Enabling fly mode.
+    permission: essentials.fly
+
+permissions:
+  kitpvp.addcoins:
+    description: Allows adding coins to players.
+    default: op
+  kitpvp.removecoins:
+    description: Allows removing coins from players.
+    default: op
+
+
+
