@@ -262,6 +262,7 @@ public class PremiumKitManager implements Listener {
                 player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));
             }
         }
+        ooo
     }
 
     public void giveAeroKit(Player player) {
