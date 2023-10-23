@@ -1,5 +1,6 @@
 package kitpvp.kitpvp;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -9,9 +10,19 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class Events implements Listener {
+    private KitManager kitManager;
+
+    private ScoreboardManager scoreboardManager;
+
+    private PremiumKitShop premiumKitShop;
+
+
+
     @EventHandler
     public void onDeathEvent(PlayerDeathEvent e) {
         Player p = e.getEntity().getPlayer();
@@ -30,6 +41,11 @@ public class Events implements Listener {
         Action action = event.getAction();
         ItemStack itemInHand = player.getInventory().getItemInMainHand();
 
+        // Check if the player's health is full
+        if (player.getHealth() == player.getMaxHealth()) {
+            return; // Exit the method if the player's health is full
+        }
+
         // Check if the player right-clicked with a Mushroom Stew
         if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) && itemInHand.getType() == Material.MUSHROOM_STEW) {
             // Remove the Mushroom Stew from the player's hand
@@ -41,9 +57,26 @@ public class Events implements Listener {
             player.setHealth(newHealth);
         }
     }
+
     @EventHandler
     public void onPlayerHunger(FoodLevelChangeEvent event) {
         event.setCancelled(true);
+    }
+
+
+    @EventHandler
+    public void onPlayerLeave(PlayerQuitEvent e){
+        Player p = e.getPlayer();
+        e.setQuitMessage(ChatColor.GRAY + "[" + ChatColor.RED + "-" + ChatColor.GRAY + "] " + ChatColor.GRAY + p.getDisplayName());
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        Player p = e.getPlayer();
+        this.kitManager.giveKitSelectorToSlot(p, 4);
+        this.premiumKitShop.giveShopItemToSlot(p, 0);
+        this.scoreboardManager.updateScoreboard(p);
+        e.setJoinMessage(ChatColor.GRAY + "[" + ChatColor.GREEN + "+" + ChatColor.GRAY + "] " + ChatColor.GRAY + p.getDisplayName());
     }
 
 

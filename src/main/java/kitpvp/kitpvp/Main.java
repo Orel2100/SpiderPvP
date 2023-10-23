@@ -1,14 +1,12 @@
 package kitpvp.kitpvp;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -25,6 +23,10 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 public class Main extends JavaPlugin implements Listener {
     FileConfiguration config;
@@ -47,15 +49,24 @@ public class Main extends JavaPlugin implements Listener {
 
     private ScoreboardManager scoreboardManager;
 
+    private Scoreboard s;
+
 
 
     public void onEnable() {
 
-        // Initialize ArenaManager
-
         // Load arenas from arenas.yml
         if (!(new File(getDataFolder(), "config.yml")).exists())
             saveDefaultConfig();
+        config = getConfig(); // Initialize the config object
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.getPlayer().getInventory().clear();
+            player.teleport(player.getWorld().getSpawnLocation());
+            player.sendTitle(ChatColor.GREEN +"SPIDERPVP",ChatColor.GREEN+ "RESTARTED", 10,100,50);
+        }
+
+        this.economyManager = new EconomyManager(this);
         this.economyManager = new EconomyManager(this);
         this.premiumKitManager = new PremiumKitManager(this.economyManager, this);
         this.kitManager = new KitManager(this.premiumKitManager);
@@ -86,6 +97,12 @@ public class Main extends JavaPlugin implements Listener {
 
         loadCoinData();
     }
+
+
+
+
+
+
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
@@ -126,20 +143,41 @@ public class Main extends JavaPlugin implements Listener {
         saveConfig();
     }
 
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent e) {
-        Player p = e.getPlayer();
-        this.kitManager.giveKitSelectorToSlot(p, 4);
-        this.premiumKitShop.giveShopItemToSlot(p, 0);
-        this.scoreboardManager.updateScoreboard(p);
-        e.setJoinMessage(ChatColor.GRAY + "[" + ChatColor.GREEN + "+" + ChatColor.GRAY + "] " + ChatColor.GRAY + p.getDisplayName());
-    }
+
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         this.kitManager.handleInventoryClick(event);
         this.premiumKitShop.handleInventoryClick(event);
     }
+
+
+    @EventHandler
+    public void onPlayerDeathMSG(PlayerDeathEvent event) {
+        Player deceased = event.getEntity();
+        Player killer = deceased.getKiller();
+
+        // If the death was caused by another player
+        if (killer != null) {
+            String[] deathMessages = {
+                    ChatColor.GREEN + deceased.getName() + ChatColor.GRAY + " met " + ChatColor.GREEN + killer.getName() + ChatColor.GRAY + "'s wrath.",
+                    ChatColor.GREEN + deceased.getName() + ChatColor.GRAY + " was outplayed by " + ChatColor.GREEN + killer.getName() + ChatColor.GRAY + ".",
+                    ChatColor.GREEN + killer.getName() + ChatColor.GRAY + " silenced " + ChatColor.GREEN + deceased.getName() + ChatColor.GRAY + ".",
+                    ChatColor.GREEN + deceased.getName() + ChatColor.GRAY + " fell to " + ChatColor.GREEN + killer.getName() + ChatColor.GRAY + "'s cunning.",
+                    ChatColor.GREEN + killer.getName() + ChatColor.GRAY + " claimed " + ChatColor.GREEN + deceased.getName() + ChatColor.GRAY + "'s fate."
+            };
+
+            // Randomly select one of the death messages
+            String randomDeathMessage = deathMessages[new Random().nextInt(deathMessages.length)];
+            event.setDeathMessage(randomDeathMessage);
+        } else {
+            // Ignore all other death messages
+            event.setDeathMessage(null);
+        }
+    }
+
+
+
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
@@ -221,4 +259,6 @@ public class Main extends JavaPlugin implements Listener {
 
         }
     }
+
+
 }

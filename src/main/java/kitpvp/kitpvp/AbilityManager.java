@@ -27,7 +27,7 @@ public class AbilityManager implements Listener {
     private final long TELEPORT_COOLDOWN_TIME = 15000L;
     private final long WITHER_COOLDOWN_TIME = 10000L; // 10 seconds
     private final long JEDI_PUSH_COOLDOWN_TIME = 10000L; // 10 seconds
-    private final ItemStack JEDI_PUSH_ITEM = new ItemStack(Material.BLAZE_ROD);
+    private final ItemStack JEDI_PUSH_ITEM = new ItemStack(Material.END_PORTAL_FRAME);
 
 
 

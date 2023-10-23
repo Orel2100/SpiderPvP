@@ -122,7 +122,7 @@ public class PremiumKitManager implements Listener {
                 }
                 break;
             case NETHER_STAR:
-                if (event.getCurrentItem().getItemMeta().getDisplayName().equals("Jedi Kit")) {
+                if (event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GREEN + "Jedi Kit")) {
                     if (doesPlayerOwnKit(player, "Jedi Kit")) {
                         giveJediKit(player);
                         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GREEN + "You've equipped the Jedi kit!"));
@@ -205,7 +205,7 @@ public class PremiumKitManager implements Listener {
         createKitMenuItem(kitMenuPremium, 13, Material.ENDER_EYE, "Enderman Kit");
         createKitMenuItem(kitMenuPremium, 16, Material.WITHER_SKELETON_SKULL, "Wither Kit");
         createKitMenuItem(kitMenuPremium, 24, Material.FEATHER, "Aero Kit");
-        createKitMenuItem(kitMenuPremium, 21, Material.NETHER_STAR, "Force Knight Kit");
+        createKitMenuItem(kitMenuPremium, 21, Material.NETHER_STAR, ChatColor.GREEN + "Jedi Kit");
         player.openInventory(kitMenuPremium);
     }
 
@@ -262,7 +262,6 @@ public class PremiumKitManager implements Listener {
                 player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));
             }
         }
-        ooo
     }
 
     public void giveAeroKit(Player player) {
@@ -291,9 +290,10 @@ public class PremiumKitManager implements Listener {
     }
 
     private void giveJediKit(Player player) {
+        player.getInventory().clear();
         // Lightsaber
-        ItemStack lightsaber = new ItemStack(Material.IRON_SWORD);
-        player.getInventory().addItem(lightsaber);
+        ItemStack jedisword = new ItemStack(Material.IRON_SWORD);
+        player.getInventory().addItem(jedisword);
 
         // Jedi Robes (Brown Leather Armor)
         ItemStack jediRobeChestplate = new ItemStack(Material.LEATHER_CHESTPLATE);
@@ -303,7 +303,7 @@ public class PremiumKitManager implements Listener {
         player.getInventory().setChestplate(jediRobeChestplate);
 
         // Force Push (Blaze Rod)
-        ItemStack forcePush = new ItemStack(Material.BLAZE_ROD);
+        ItemStack forcePush = new ItemStack(Material.LEGACY_ENDER_PORTAL_FRAME);
         player.getInventory().addItem(forcePush);
     }
 }
