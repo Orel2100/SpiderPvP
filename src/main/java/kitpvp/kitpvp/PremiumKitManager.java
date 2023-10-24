@@ -224,7 +224,7 @@ public class PremiumKitManager implements Listener {
         player.getInventory().setChestplate(new ItemStack(Material.DIAMOND_CHESTPLATE));
         player.getInventory().setLeggings(new ItemStack(Material.DIAMOND_LEGGINGS));
         player.getInventory().setBoots(new ItemStack(Material.DIAMOND_BOOTS));
-        for (int i = 0; i < player.getInventory().getSize(); i++) {
+        for (int i = 0; i < 36; i++) { // Main inventory slots are from 0 to 35
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getType() == Material.AIR) {
                 player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));
@@ -240,7 +240,7 @@ public class PremiumKitManager implements Listener {
         player.getInventory().setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
         player.getInventory().setLeggings(new ItemStack(Material.IRON_LEGGINGS));
         player.getInventory().setBoots(new ItemStack(Material.IRON_BOOTS));
-        for (int i = 0; i < player.getInventory().getSize(); i++) {
+        for (int i = 0; i < 36; i++) { // Main inventory slots are from 0 to 35
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getType() == Material.AIR) {
                 player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));
@@ -256,7 +256,7 @@ public class PremiumKitManager implements Listener {
         player.getInventory().setChestplate(new ItemStack(Material.GOLDEN_CHESTPLATE));
         player.getInventory().setLeggings(new ItemStack(Material.CHAINMAIL_LEGGINGS));
         player.getInventory().setBoots(new ItemStack(Material.CHAINMAIL_BOOTS));
-        for (int i = 0; i < player.getInventory().getSize(); i++) {
+        for (int i = 0; i < 36; i++) { // Main inventory slots are from 0 to 35
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getType() == Material.AIR) {
                 player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));
@@ -281,7 +281,7 @@ public class PremiumKitManager implements Listener {
         player.getInventory().setLeggings(new ItemStack(Material.CHAINMAIL_LEGGINGS));
         player.getInventory().setBoots(new ItemStack(Material.CHAINMAIL_BOOTS));
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.AQUA + "You've equipped the Aero kit!"));
-        for (int i = 0; i < player.getInventory().getSize(); i++) {
+        for (int i = 0; i < 36; i++) { // Main inventory slots are from 0 to 35
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getType() == Material.AIR) {
                 player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));

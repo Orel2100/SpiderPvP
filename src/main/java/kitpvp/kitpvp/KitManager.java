@@ -3,6 +3,7 @@ package kitpvp.kitpvp;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -105,7 +106,7 @@ public class KitManager {
         player.getInventory().setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
         player.getInventory().setLeggings(new ItemStack(Material.IRON_LEGGINGS));
         player.getInventory().setBoots(new ItemStack(Material.IRON_BOOTS));
-        for (int i = 0; i < player.getInventory().getSize(); i++) {
+        for (int i = 0; i < 36; i++) { // Main inventory slots are from 0 to 35
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getType() == Material.AIR) {
                 player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));
@@ -117,8 +118,10 @@ public class KitManager {
         ItemStack Archerarrow = new ItemStack(Material.ARROW);
         ItemMeta meta = Archerarrow.getItemMeta();
         meta.setDisplayName(ChatColor.GREEN + "ExplosiveArrow");
+        player.getInventory().setItem(9, Archerarrow);
         Archerarrow.setItemMeta(meta);
         ItemStack ArcherBow = new ItemStack(Material.BOW);
+        ArcherBow.addEnchantment(Enchantment.ARROW_INFINITE, 1);
         ItemMeta meta1 = ArcherBow.getItemMeta();
         meta1.setDisplayName(ChatColor.GREEN + "Archer Bow");
         ArcherBow.setItemMeta(meta1);
@@ -129,7 +132,7 @@ public class KitManager {
         player.getInventory().setChestplate(new ItemStack(Material.LEATHER_CHESTPLATE));
         player.getInventory().setLeggings(new ItemStack(Material.LEATHER_LEGGINGS));
         player.getInventory().setBoots(new ItemStack(Material.LEATHER_BOOTS));
-        for (int i = 0; i < player.getInventory().getSize(); i++) {
+        for (int i = 0; i < 36; i++) { // Main inventory slots are from 0 to 35
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getType() == Material.AIR) {
                 player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));
@@ -148,7 +151,7 @@ public class KitManager {
         player.getInventory().setChestplate(new ItemStack(Material.CHAINMAIL_CHESTPLATE));
         player.getInventory().setLeggings(new ItemStack(Material.CHAINMAIL_LEGGINGS));
         player.getInventory().setBoots(new ItemStack(Material.CHAINMAIL_BOOTS));
-        for (int i = 0; i < player.getInventory().getSize(); i++) {
+        for (int i = 0; i < 36; i++) { // Main inventory slots are from 0 to 35
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getType() == Material.AIR) {
                 player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));

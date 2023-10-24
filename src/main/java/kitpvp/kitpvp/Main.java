@@ -103,6 +103,15 @@ public class Main extends JavaPlugin implements Listener {
 
 
 
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        Player p = e.getPlayer();
+        this.kitManager.giveKitSelectorToSlot(p, 4);
+        this.premiumKitShop.giveShopItemToSlot(p, 0);
+        this.scoreboardManager.updateScoreboard(p);
+        e.setJoinMessage(ChatColor.GRAY + "[" + ChatColor.GREEN + "+" + ChatColor.GRAY + "] " + ChatColor.GRAY + p.getDisplayName());
+    }
+
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
