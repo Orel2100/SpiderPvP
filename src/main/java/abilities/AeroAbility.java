@@ -33,7 +33,7 @@ public class AeroAbility implements Listener {
             if (remainingCooldown == 0L) {
                 // Dash the player forward
                 Vector direction = player.getLocation().getDirection().normalize();
-                player.setVelocity(direction.multiply(2.5)); // Adjust the multiplier for longer/shorter dash
+                player.setVelocity(direction.multiply(1.5)); // Adjust the multiplier for longer/shorter dash
 
                 // Particle effect
                 player.getWorld().spawnParticle(Particle.CLOUD, player.getLocation(), 10, 0.5, 0.5, 0.5, 0.1);

@@ -16,7 +16,7 @@ import java.util.HashMap;
 
 public class SoupRefillStation implements Listener {
 
-    private final int maxSoupAmount = 7;
+    private final int maxSoupAmount = 10;
     private HashMap<Block, Integer> soupAmounts = new HashMap<>();
     private Plugin plugin;
 

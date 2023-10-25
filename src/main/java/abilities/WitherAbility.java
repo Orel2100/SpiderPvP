@@ -50,6 +50,7 @@ public class WitherAbility implements Listener {
                             skull.setVelocity(player.getLocation().getDirection().multiply(2));
                             skull.setIsIncendiary(false);
                             skull.setYield(1.5F);
+                            skull.getWorld().createExplosion(skull.getLocation(), 2.0F, false, false);
 
                             new BukkitRunnable() {
                                 @Override
@@ -65,7 +66,7 @@ public class WitherAbility implements Listener {
 
                             count++;
                         }
-                    }.runTaskTimer(plugin, 0L, 20L); // 20 ticks = 1 second
+                    }.runTaskTimer(plugin, 0L, 10L); // 20 ticks = 1 second
 
                     setCooldown(player, "_wither");
                     player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GREEN + "You've used your Wither ability!"));

@@ -110,7 +110,7 @@ public class Main extends JavaPlugin implements Listener {
         // Registering all the ability classes
         pm.registerEvents(new AeroAbility(), this);
         pm.registerEvents(new ArcherAbility(), this);
-        pm.registerEvents(new BerserkerAbility(), this);
+        pm.registerEvents(new BerserkerAbility(this), this);
         pm.registerEvents(new EndermanAbility(), this);
         pm.registerEvents(new JediAbility(), this);
         pm.registerEvents(new WitherAbility(this), this);
