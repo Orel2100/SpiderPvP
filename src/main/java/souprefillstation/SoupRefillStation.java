@@ -30,7 +30,8 @@ public class SoupRefillStation implements Listener {
         Block block = event.getClickedBlock();
 
         if ((event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_BLOCK)
-                && (block.getType() == Material.OAK_SIGN || block.getType() == Material.OAK_WALL_SIGN)) {            Sign sign = (Sign) block.getState();
+                && (block.getType() == Material.OAK_SIGN || block.getType() == Material.OAK_WALL_SIGN)) {
+            Sign sign = (Sign) block.getState();
             if (sign.getLine(1).equalsIgnoreCase("REFILL")) {
                 // Initialize the block in the HashMap if it's not already present
                 if (!soupAmounts.containsKey(block)) {
@@ -64,7 +65,17 @@ public class SoupRefillStation implements Listener {
     }
 
     private void updateStationStatus(Block block, Material material) {
-        Block attachedBlock = block.getRelative(((org.bukkit.material.Sign) block.getState().getData()).getAttachedFace());
-        attachedBlock.setType(material);
+        org.bukkit.block.data.type.WallSign wallSignData = null;
+        if (block.getBlockData() instanceof org.bukkit.block.data.type.WallSign) {
+            wallSignData = (org.bukkit.block.data.type.WallSign) block.getBlockData();
+        }
+
+        if (wallSignData != null) {
+            Block attachedBlock = block.getRelative(wallSignData.getFacing().getOppositeFace());
+            attachedBlock.setType(material);
+        } else {
+            Bukkit.getLogger().warning("Unable to determine the attached face for block at " + block.getLocation());
+        }
     }
+
 }
