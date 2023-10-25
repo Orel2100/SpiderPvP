@@ -1,4 +1,4 @@
-package kitpvp.kitpvp;
+package abilities;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

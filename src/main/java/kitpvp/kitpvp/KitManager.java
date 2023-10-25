@@ -16,8 +16,6 @@ public class KitManager {
 
     private final String KIT_SELECTOR_NAME = "Kit Selector";
 
-    private AbilityManager abilityManager = new AbilityManager();
-
     private final PremiumKitManager premiumKitManager;
 
     private NPCEvents npcMenuHandler;
@@ -115,30 +113,42 @@ public class KitManager {
     }
 
     private void giveArcherKit(Player player) {
-        ItemStack Archerarrow = new ItemStack(Material.ARROW);
-        ItemMeta meta = Archerarrow.getItemMeta();
-        meta.setDisplayName(ChatColor.GREEN + "ExplosiveArrow");
-        player.getInventory().setItem(9, Archerarrow);
-        Archerarrow.setItemMeta(meta);
+        // Clear the inventory first
+        player.getInventory().clear();
+
+        // Set the Archer Bow
         ItemStack ArcherBow = new ItemStack(Material.BOW);
         ArcherBow.addEnchantment(Enchantment.ARROW_INFINITE, 1);
         ItemMeta meta1 = ArcherBow.getItemMeta();
         meta1.setDisplayName(ChatColor.GREEN + "Archer Bow");
         ArcherBow.setItemMeta(meta1);
-        player.getInventory().clear();
-        player.getInventory().addItem(new ItemStack[] { ArcherBow });
-        player.getInventory().addItem(new ItemStack[] { Archerarrow });
+        player.getInventory().addItem(ArcherBow);
+
+        // Set the Explosive Arrow
+        ItemStack Archerarrow = new ItemStack(Material.ARROW);
+        ItemMeta meta = Archerarrow.getItemMeta();
+        meta.setDisplayName(ChatColor.GREEN + "ExplosiveArrow");
+        Archerarrow.setItemMeta(meta);
+        player.getInventory().setItem(9, Archerarrow);
+
+        // Set the armor
         player.getInventory().setHelmet(new ItemStack(Material.LEATHER_HELMET));
         player.getInventory().setChestplate(new ItemStack(Material.LEATHER_CHESTPLATE));
         player.getInventory().setLeggings(new ItemStack(Material.LEATHER_LEGGINGS));
         player.getInventory().setBoots(new ItemStack(Material.LEATHER_BOOTS));
-        for (int i = 0; i < 36; i++) { // Main inventory slots are from 0 to 35
+
+        // Fill the remaining empty slots with MUSHROOM_STEW
+        for (int i = 0; i < 36; i++) {
             ItemStack item = player.getInventory().getItem(i);
             if (item == null || item.getType() == Material.AIR) {
                 player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));
             }
         }
+
+        // Update the player's inventory
+        player.updateInventory();
     }
+
 
     private void giveBerserkerKit(Player player) {
         ItemStack berserkerAxe = new ItemStack(Material.DIAMOND_AXE);

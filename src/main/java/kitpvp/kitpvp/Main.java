@@ -3,10 +3,10 @@ package kitpvp.kitpvp;
 import java.io.File;
 import java.util.*;
 
+import abilities.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -22,11 +22,11 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
+import souprefillstation.SoupRefillStation;
+
 
 public class Main extends JavaPlugin implements Listener {
     FileConfiguration config;
@@ -48,6 +48,9 @@ public class Main extends JavaPlugin implements Listener {
     private final HashSet<UUID> playersInCombat = new HashSet<>();
 
     private ScoreboardManager scoreboardManager;
+
+    SoupRefillStation soupRefillStation = new SoupRefillStation(this);
+
 
     private Scoreboard s;
 
@@ -73,7 +76,6 @@ public class Main extends JavaPlugin implements Listener {
         this.premiumKitShop = new PremiumKitShop(this.economyManager, this.premiumKitManager);
         NPCEvents = new NPCEvents(kitManager, premiumKitShop);
         Bukkit.getPluginManager().registerEvents(this, (Plugin)this);
-        Bukkit.getPluginManager().registerEvents(new AbilityManager(), (Plugin)this);
         Bukkit.getPluginManager().registerEvents(new Events(), (Plugin)this);
         Bukkit.getPluginManager().registerEvents(NPCEvents, this);
         getServer().getPluginManager().registerEvents(new WarriorAbility(this), this);
@@ -96,7 +98,25 @@ public class Main extends JavaPlugin implements Listener {
         }, 0L, 20L);
 
         loadCoinData();
+
+
+        //Abilities
+        registerEventsAbilities();
     }
+
+    private void registerEventsAbilities() {
+        PluginManager pm = getServer().getPluginManager();
+
+        // Registering all the ability classes
+        pm.registerEvents(new AeroAbility(), this);
+        pm.registerEvents(new ArcherAbility(), this);
+        pm.registerEvents(new BerserkerAbility(), this);
+        pm.registerEvents(new EndermanAbility(), this);
+        pm.registerEvents(new JediAbility(), this);
+        pm.registerEvents(new WitherAbility(this), this);
+        pm.registerEvents(new SoupRefillStation(this), this);
+    }
+
 
 
 

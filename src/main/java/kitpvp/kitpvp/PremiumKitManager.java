@@ -305,5 +305,12 @@ public class PremiumKitManager implements Listener {
         // Force Push (Blaze Rod)
         ItemStack forcePush = new ItemStack(Material.LEGACY_ENDER_PORTAL_FRAME);
         player.getInventory().addItem(forcePush);
+
+        for (int i = 0; i < player.getInventory().getSize(); i++) {
+            ItemStack item = player.getInventory().getItem(i);
+            if (item == null || item.getType() == Material.AIR) {
+                player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));
+            }
+        }
     }
 }

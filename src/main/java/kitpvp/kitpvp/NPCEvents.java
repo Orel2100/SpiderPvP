@@ -1,6 +1,7 @@
 package kitpvp.kitpvp;
 
 import net.citizensnpcs.api.event.NPCRightClickEvent;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,7 +18,7 @@ public class NPCEvents implements Listener {
 
     @EventHandler
     public void onNPCRightClick(NPCRightClickEvent event) {
-        if (event.getNPC().getName().equalsIgnoreCase("KitSelector")) {
+        if (event.getNPC().getName().equalsIgnoreCase("Kit Selector")) {
             Player player = event.getClicker();
             kitManager.openKitSelectionMenu(player);
         } else if (event.getNPC().getName().equalsIgnoreCase("Shop")) {
