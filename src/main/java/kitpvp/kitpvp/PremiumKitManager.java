@@ -13,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -43,12 +44,26 @@ public class PremiumKitManager implements Listener {
     }
 
     public boolean doesPlayerOwnKit(Player player, String kitName) {
-        return ((HashSet) this.playerKitOwnership.getOrDefault(player.getUniqueId(), new HashSet<>())).contains(kitName);
+        boolean ownsKit = this.playerKitOwnership.getOrDefault(player.getUniqueId(), new HashSet<>()).contains(kitName);
+        return ownsKit;
     }
 
     public void addKitToPlayer(Player player, String kitName) {
-        ((HashSet<String>) this.playerKitOwnership.computeIfAbsent(player.getUniqueId(), k -> new HashSet())).add(kitName);
+        this.playerKitOwnership.computeIfAbsent(player.getUniqueId(), k -> new HashSet<>()).add(kitName);
+        FileConfiguration kitOwnershipConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "kitOwnership.yml"));
+        List<String> playerKits = kitOwnershipConfig.getStringList(player.getUniqueId().toString());
+        if (playerKits == null) {
+            playerKits = new ArrayList<>();
+        }
+        playerKits.add(kitName);
+        kitOwnershipConfig.set(player.getUniqueId().toString(), playerKits);
+        try {
+            kitOwnershipConfig.save(new File(plugin.getDataFolder(), "kitOwnership.yml"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
 
     public PremiumKitManager(EconomyManager economyManager, JavaPlugin plugin) {
         this.PREMIUM_KIT_SELECTOR_TITLE = "Select Your Premium Kit";
@@ -136,12 +151,6 @@ public class PremiumKitManager implements Listener {
         }
     }
 
-    public void handleKitSelection(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-        ItemStack item = player.getInventory().getItemInMainHand();
-        if (item.getType() == Material.EMERALD && item.hasItemMeta() && "Premium Kit Selector".equals(item.getItemMeta().getDisplayName()))
-            openPremiumKitSelectionMenu(player);
-    }
 
     public void saveKitOwnership() {
         try {

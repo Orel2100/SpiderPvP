@@ -1,5 +1,6 @@
 package kitpvp.kitpvp;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -45,6 +46,7 @@ public class EconomyCommands implements CommandExecutor {
             }
             this.economyManager.addCoins(target, amount);
             player.sendMessage("Added " + amount + " coins to " + target.getName() + ".");
+            target.sendMessage(ChatColor.GRAY + "You were rewarded " + ChatColor.RED + amount + ChatColor.GRAY + " coins");
             return true;
         }
         if (cmd.getName().equalsIgnoreCase("removecoins")) {

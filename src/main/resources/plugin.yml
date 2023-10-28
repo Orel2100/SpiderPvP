@@ -27,6 +27,10 @@ commands:
   fly:
     description: Enabling fly mode.
     permission: essentials.fly
+  disableparticles:
+    description: Disables the particle effects for the player.
+    usage: /disableparticles
+    aliases: [pd]
 
 permissions:
   kitpvp.addcoins:

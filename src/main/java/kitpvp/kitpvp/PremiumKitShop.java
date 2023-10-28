@@ -1,7 +1,5 @@
 package kitpvp.kitpvp;
 
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -15,7 +13,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Arrays;
+import java.util.*;
 
 public class PremiumKitShop implements Listener {
     private final EconomyManager economyManager;
@@ -23,9 +21,56 @@ public class PremiumKitShop implements Listener {
 
     private static final String SHOP_TITLE = "Buy Premium Kits";
 
+    // Enum for Kits
+    public enum Kit {
+        ELITE_WARRIOR("Elite Warrior Kit", Material.DIAMOND_SWORD, 500, 10),
+        ENDERMAN("Enderman Kit", Material.ENDER_EYE, 1000, 13),
+        WITHER("Wither Kit", Material.WITHER_SKELETON_SKULL, 1500, 16),
+        AERO("Aero Kit", Material.FEATHER, 2000, 24),
+        JEDI("Jedi Kit", Material.NETHER_STAR, 2500, 26); // Assuming slot 26 for demonstration
+
+        private final String name;
+        private final Material material;
+        private final int cost;
+        private final int slot; // Added slot for each kit
+
+        Kit(String name, Material material, int cost, int slot) {
+            this.name = name;
+            this.material = material;
+            this.cost = cost;
+            this.slot = slot;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Material getMaterial() {
+            return material;
+        }
+
+        public int getCost() {
+            return cost;
+        }
+
+        public int getSlot() {
+            return slot;
+        }
+    }
+
+
+
+
+
+    private final Map<Material, Kit> kitByMaterial = new HashMap<>();
+
     public PremiumKitShop(EconomyManager economyManager, PremiumKitManager premiumKitManager) {
         this.economyManager = economyManager;
         this.premiumKitManager = premiumKitManager;
+
+        for (Kit kit : Kit.values()) {
+            kitByMaterial.put(kit.getMaterial(), kit);
+        }
     }
 
     @EventHandler
@@ -44,64 +89,98 @@ public class PremiumKitShop implements Listener {
             if (i != 10 && i != 13 && i != 16 && i != 24)
                 shop.setItem(i, new ItemStack(Material.BLACK_STAINED_GLASS_PANE));
         }
-        createShopItem(shop, 10, Material.DIAMOND_SWORD, "Elite Warrior Kit", 500);
-        createShopItem(shop, 13, Material.ENDER_EYE, "Enderman Kit", 1000);
-        createShopItem(shop, 16, Material.WITHER_SKELETON_SKULL, "Wither Kit", 1500);
-        createShopItem(shop, 24, Material.FEATHER, "Aero Kit", 2000);
-        createShopItem(shop, 21, Material.NETHER_STAR, "Jedi Kit", 2500);
+        for (Kit kit : Kit.values()) {
+            createShopItem(shop, kit.getSlot(), kit.getMaterial(), kit.getName(), kit.getCost(), player); // Pass player as an argument
+        }
         player.openInventory(shop);
     }
 
-    private void createShopItem(Inventory inventory, int slot, Material material, String displayName, int cost) {
+
+
+    private void createShopItem(Inventory inventory, int slot, Material material, String displayName, int cost, Player player) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(ChatColor.GREEN + displayName);
-        meta.setLore(Arrays.asList(ChatColor.GRAY + "Cost: " + cost + " coins"));
+
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.GRAY + "Cost: " + ChatColor.RED + cost + " coins");
+        if(premiumKitManager.doesPlayerOwnKit(player, displayName)) {
+            lore.add(ChatColor.GRAY + "Status: " + ChatColor.GREEN + "Owned");
+        } else {
+            lore.add(ChatColor.GRAY + "Status: " + ChatColor.RED + "Not Owned");
+        }
+
+        // Adding the detailed description lore based on the kit
+        switch (displayName) {
+            case "Elite Warrior Kit":
+                lore.add(ChatColor.GRAY + "");
+                lore.add(ChatColor.GRAY + "Ability: Lightning Strike (Right-Click)");
+                lore.add(ChatColor.GRAY + "Armor: Full Diamond");
+                lore.add(ChatColor.GRAY + "Weapon: Diamond Sword");
+                lore.add(ChatColor.GRAY + "Cooldown: 15s");
+                break;
+            case "Enderman Kit":
+                lore.add(ChatColor.GRAY + "");
+                lore.add(ChatColor.GRAY + "Ability: Teleportation (Right-Click)");
+                lore.add(ChatColor.GRAY + "Armor: Iron with Diamond Helmet");
+                lore.add(ChatColor.GRAY + "Weapon: Iron Sword");
+                lore.add(ChatColor.GRAY + "Cooldown: 15s");
+                break;
+            case "Wither Kit":
+                lore.add(ChatColor.GRAY + "");
+                lore.add(ChatColor.GRAY + "Ability: Withering Blast (Right-Click)");
+                lore.add(ChatColor.GRAY + "Armor: Chainmail with Gold Chestplate");
+                lore.add(ChatColor.GRAY + "Weapon: Iron Sword & Blaze Rod");
+                lore.add(ChatColor.GRAY + "Cooldown: 15s");
+                break;
+            case "Aero Kit":
+                lore.add(ChatColor.GRAY + "");
+                lore.add(ChatColor.GRAY + "Ability: Dash (Right-Click)");
+                lore.add(ChatColor.GRAY + "Armor: Chainmail");
+                lore.add(ChatColor.GRAY + "Weapon: Iron Sword");
+                lore.add(ChatColor.GRAY + "Cooldown: 10s");
+                break;
+            case "Jedi Kit":
+                lore.add(ChatColor.GRAY + "");
+                lore.add(ChatColor.GRAY + "Ability: Force Push (Shift)");
+                lore.add(ChatColor.GRAY + "Armor: Leather");
+                lore.add(ChatColor.GRAY + "Weapon: Lightsaber");
+                lore.add(ChatColor.GRAY + "Cooldown: 10s");
+                break;
+        }
+
+        meta.setLore(lore);
         item.setItemMeta(meta);
         inventory.setItem(slot, item);
     }
 
+
+
+
+
     @EventHandler
     public void handleInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player))
-            return;
-        Player player = (Player) event.getWhoClicked();
-        if (!event.getView().getTitle().equals(SHOP_TITLE))
-            return;
-        event.setCancelled(true);
-        ItemStack clickedItem = event.getCurrentItem();
-        if (clickedItem == null || clickedItem.getItemMeta() == null)
-            return;
+        if (event.getWhoClicked() instanceof Player) {
+            Player player = (Player) event.getWhoClicked();
+            if (event.getView().getTitle().equals(SHOP_TITLE)) {
+                event.setCancelled(true);
+                ItemStack clickedItem = event.getCurrentItem();
+                if (clickedItem != null && clickedItem.getItemMeta() != null) {
+                    Kit selectedKit = kitByMaterial.get(clickedItem.getType());
+                    if (selectedKit == null) return;
 
-        String kitName = ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName());
-        int cost = getKitCost(kitName);
-
-        if (premiumKitManager.doesPlayerOwnKit(player, kitName)) {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("You already own the " + kitName + "!"));
-        } else if (economyManager.getCoins(player) >= cost) {
-            economyManager.removeCoins(player, cost);
-            premiumKitManager.addKitToPlayer(player, kitName);
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("You've purchased the " + kitName + "!"));
-        } else {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("You don't have enough coins!"));
-        }
-        player.closeInventory();
-    }
-
-    private int getKitCost(String kitName) {
-        switch (kitName) {
-            case "Elite Warrior Kit":
-                return 500;
-            case "Enderman Kit":
-                return 1000;
-            case "Wither Kit":
-                return 1500;
-            case "Aero Kit":
-                return 2000;
-            case "Jedi Kit":
-                return 2500;
-            default:
-                return 0;
+                    if (premiumKitManager.doesPlayerOwnKit(player, selectedKit.getName())) {
+                        player.sendMessage("You already own the " + selectedKit.getName() + "!");
+                    } else if (economyManager.getCoins(player) >= selectedKit.getCost()) {
+                        economyManager.removeCoins(player, selectedKit.getCost());
+                        premiumKitManager.addKitToPlayer(player, selectedKit.getName());
+                        player.sendMessage("You've purchased the " + selectedKit.getName() + "!");
+                    } else {
+                        player.sendMessage("You don't have enough coins!");
+                    }
+                    player.closeInventory();
+                }
+            }
         }
     }
 

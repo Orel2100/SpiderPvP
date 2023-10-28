@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.WitherSkull;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -19,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class WitherAbility implements Listener {
-    private final long WITHER_COOLDOWN_TIME = 10000L; // 10 seconds
+    private final long WITHER_COOLDOWN_TIME = 15000L; // 15 seconds
     private final Map<String, Long> cooldowns = new HashMap<>();
 
     private final Main plugin;
@@ -107,4 +108,13 @@ public class WitherAbility implements Listener {
         String key = player.getUniqueId().toString() + suffix;
         this.cooldowns.put(key, System.currentTimeMillis());
     }
+
+    @EventHandler
+    public void onExplosionPrime(ExplosionPrimeEvent event) {
+        if (event.getEntity() instanceof WitherSkull) {
+            event.setFire(false); // Ensure it doesn't start fires
+            event.setRadius(0);   // Set the explosion radius to 0 to prevent block damage
+        }
+    }
+
 }

@@ -25,6 +25,9 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
+import particles.ParticleEffectManager;
+import particles.ParticleGUINPC;
+import particles.Particlecommand;
 import souprefillstation.SoupRefillStation;
 
 
@@ -32,6 +35,11 @@ public class Main extends JavaPlugin implements Listener {
     FileConfiguration config;
 
     private NPCEvents NPCEvents;
+
+    private static Main instance;
+
+
+
 
 
 
@@ -53,56 +61,80 @@ public class Main extends JavaPlugin implements Listener {
 
 
     private Scoreboard s;
+    private ParticleEffectManager particleEffectManager;
+    private ParticleGUINPC particleGUINPC;
 
 
 
+
+
+
+
+    @Override
     public void onEnable() {
+        instance = this;
 
-        // Load arenas from arenas.yml
-        if (!(new File(getDataFolder(), "config.yml")).exists())
+        // Load configuration
+        if (!(new File(getDataFolder(), "config.yml")).exists()) {
             saveDefaultConfig();
-        config = getConfig(); // Initialize the config object
+        }
+        config = getConfig();
 
+        // Handle online players on plugin enable
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.getPlayer().getInventory().clear();
             player.teleport(player.getWorld().getSpawnLocation());
-            player.sendTitle(ChatColor.GREEN +"SPIDERPVP",ChatColor.GREEN+ "RESTARTED", 10,100,50);
+            player.sendTitle(ChatColor.GREEN + "SPIDERPVP", ChatColor.GREEN + "RESTARTED", 10, 100, 50);
         }
 
-        this.economyManager = new EconomyManager(this);
-        this.economyManager = new EconomyManager(this);
-        this.premiumKitManager = new PremiumKitManager(this.economyManager, this);
-        this.kitManager = new KitManager(this.premiumKitManager);
-        this.premiumKitShop = new PremiumKitShop(this.economyManager, this.premiumKitManager);
+        // Initialize ParticleEffectManager and ParticleGUINPC
+        particleEffectManager = new ParticleEffectManager(this);
+        particleGUINPC = new ParticleGUINPC(particleEffectManager);
+
+        // Register the particle command
+        getCommand("disableparticles").setExecutor(new Particlecommand(particleEffectManager));
+
+        // Initialize other managers and handlers
+        economyManager = new EconomyManager(this);
+        premiumKitManager = new PremiumKitManager(economyManager, this);
+        kitManager = new KitManager(premiumKitManager);
+        premiumKitShop = new PremiumKitShop(economyManager, premiumKitManager);
         NPCEvents = new NPCEvents(kitManager, premiumKitShop);
-        Bukkit.getPluginManager().registerEvents(this, (Plugin)this);
-        Bukkit.getPluginManager().registerEvents(new Events(), (Plugin)this);
+        scoreboardManager = new ScoreboardManager(this);
+
+        // Register events
+        Bukkit.getPluginManager().registerEvents(this, this);
+        Bukkit.getPluginManager().registerEvents(new Events(), this);
         Bukkit.getPluginManager().registerEvents(NPCEvents, this);
-        getServer().getPluginManager().registerEvents(new WarriorAbility(this), this);
-        Bukkit.getPluginManager().registerEvents(this.premiumKitManager, (Plugin)this);
-        Bukkit.getPluginManager().registerEvents(this.premiumKitShop, (Plugin)this);
-        Bukkit.getPluginManager().registerEvents(new PremiumKitManager(this.economyManager, this), (Plugin)this);
-        this.premiumKitManager.ensureKitOwnershipFileExists();
-        EconomyCommands economyCommands = new EconomyCommands(this.economyManager);
+        Bukkit.getPluginManager().registerEvents(premiumKitManager, this);
+        Bukkit.getPluginManager().registerEvents(premiumKitShop, this);
+        Bukkit.getPluginManager().registerEvents(particleEffectManager, this);
+        Bukkit.getPluginManager().registerEvents(particleGUINPC, this);
+
+        // Load kit ownership
+        premiumKitManager.ensureKitOwnershipFileExists();
+        premiumKitManager.loadKitOwnership();
+
+        // Register economy commands
+        EconomyCommands economyCommands = new EconomyCommands(economyManager);
         getCommand("coins").setExecutor(economyCommands);
         getCommand("addcoins").setExecutor(economyCommands);
         getCommand("removecoins").setExecutor(economyCommands);
-        getCommand("setspawn").setExecutor((CommandExecutor)this);
-        getCommand("spawn").setExecutor((CommandExecutor)this);
-        getCommand("fly").setExecutor((CommandExecutor)this);
-        this.scoreboardManager = new ScoreboardManager(this);
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                this.scoreboardManager.updateScoreboard(player);
-            }
-        }, 0L, 20L);
 
+        // Register abilities
+        registerEventsAbilities();
+
+        // Load coin data
         loadCoinData();
 
-
-        //Abilities
-        registerEventsAbilities();
+        // Update scoreboards for online players
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                scoreboardManager.updateScoreboard(player);
+            }
+        }, 0L, 20L);
     }
+
 
     private void registerEventsAbilities() {
         PluginManager pm = getServer().getPluginManager();
@@ -115,17 +147,23 @@ public class Main extends JavaPlugin implements Listener {
         pm.registerEvents(new JediAbility(), this);
         pm.registerEvents(new WitherAbility(this), this);
         pm.registerEvents(new SoupRefillStation(this), this);
+        getServer().getPluginManager().registerEvents(particleEffectManager, this);
+        getServer().getPluginManager().registerEvents(particleGUINPC, this);
+
     }
 
 
 
 
 
-
+    public static Main getInstance() {
+        return instance;
+    }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
+        p.getPlayer().getInventory().clear();
         this.kitManager.giveKitSelectorToSlot(p, 4);
         this.premiumKitShop.giveShopItemToSlot(p, 0);
         this.scoreboardManager.updateScoreboard(p);
@@ -147,6 +185,10 @@ public class Main extends JavaPlugin implements Listener {
 
     public void onDisable() {
         saveCoinData();
+        this.premiumKitManager.saveKitOwnership();
+        scoreboardManager.saveData();
+
+
     }
 
     private void loadCoinData() {
