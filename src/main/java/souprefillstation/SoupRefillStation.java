@@ -1,13 +1,16 @@
 package souprefillstation;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -24,6 +27,18 @@ public class SoupRefillStation implements Listener {
         this.plugin = plugin;
     }
 
+
+    public void onSignChange(SignChangeEvent event) {
+        if (event.getLine(1).equalsIgnoreCase("REFILL")) {
+            Block block = event.getBlock();
+            Block attachedBlock = getAttachedBlock(block);
+            if (!soupAmounts.containsKey(attachedBlock)) {
+                soupAmounts.put(attachedBlock, maxSoupAmount);
+            }
+            event.setLine(2, ChatColor.GREEN + "Soup: " + soupAmounts.get(attachedBlock));
+        }
+    }
+
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
@@ -33,23 +48,24 @@ public class SoupRefillStation implements Listener {
                 && (block.getType() == Material.OAK_SIGN || block.getType() == Material.OAK_WALL_SIGN)) {
             Sign sign = (Sign) block.getState();
             if (sign.getLine(1).equalsIgnoreCase("REFILL")) {
-                // Initialize the block in the HashMap if it's not already present
-                if (!soupAmounts.containsKey(block)) {
-                    soupAmounts.put(block, maxSoupAmount);
-                    updateStationStatus(block, Material.GREEN_WOOL);
+                Block attachedBlock = getAttachedBlock(block);
+                if (!soupAmounts.containsKey(attachedBlock)) {
+                    soupAmounts.put(attachedBlock, maxSoupAmount);
+                    updateStationStatus(attachedBlock, Material.GREEN_WOOL);
                 }
 
-                // Check if the station has soup
-                if (soupAmounts.get(block) > 0) {
+                if (soupAmounts.get(attachedBlock) > 0) {
                     refillSoup(player);
-                    soupAmounts.put(block, soupAmounts.get(block) - 1);
-                    if (soupAmounts.get(block) == 0) {
-                        updateStationStatus(block, Material.RED_WOOL);
-                        // Schedule refill after 10 seconds
+                    soupAmounts.put(attachedBlock, soupAmounts.get(attachedBlock) - 1);
+                    sign.setLine(2, "Soup: " + soupAmounts.get(attachedBlock)); // Live update
+                    sign.update();
+
+                    if (soupAmounts.get(attachedBlock) == 0) {
+                        updateStationStatus(attachedBlock, Material.RED_WOOL);
                         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                            soupAmounts.put(block, maxSoupAmount);
-                            updateStationStatus(block, Material.GREEN_WOOL);
-                        }, 200L); // 20 ticks = 1 second, so 200 ticks = 10 seconds
+                            soupAmounts.put(attachedBlock, maxSoupAmount);
+                            updateStationStatus(attachedBlock, Material.GREEN_WOOL);
+                        }, 200L);
                     }
                     player.sendMessage("Soup refilled!");
                 } else {
@@ -59,23 +75,41 @@ public class SoupRefillStation implements Listener {
         }
     }
 
+
     private void refillSoup(Player player) {
         ItemStack soup = new ItemStack(Material.MUSHROOM_STEW);
         player.getInventory().addItem(soup);
     }
 
-    private void updateStationStatus(Block block, Material material) {
+    private Block getAttachedBlock(Block signBlock) {
         org.bukkit.block.data.type.WallSign wallSignData = null;
-        if (block.getBlockData() instanceof org.bukkit.block.data.type.WallSign) {
-            wallSignData = (org.bukkit.block.data.type.WallSign) block.getBlockData();
+        if (signBlock.getBlockData() instanceof org.bukkit.block.data.type.WallSign) {
+            wallSignData = (org.bukkit.block.data.type.WallSign) signBlock.getBlockData();
+        }
+        if (wallSignData != null) {
+            return signBlock.getRelative(wallSignData.getFacing().getOppositeFace());
+        }
+        return null;
+    }
+
+
+    private void updateStationStatus(Block block, Material material) {
+        // Update all signs attached to the block
+        for (BlockFace face : BlockFace.values()) {
+            Block relative = block.getRelative(face);
+            if (relative.getType() == Material.OAK_SIGN || relative.getType() == Material.OAK_WALL_SIGN) {
+                Sign sign = (Sign) relative.getState();
+                if (sign.getLine(1).equalsIgnoreCase("REFILL")) {
+                    // Update the sign text with green color
+                    sign.setLine(2, ChatColor.GREEN + "Soup: " + soupAmounts.get(block));
+                    sign.update(); // This is important to apply the changes to the sign
+                }
+            }
         }
 
-        if (wallSignData != null) {
-            Block attachedBlock = block.getRelative(wallSignData.getFacing().getOppositeFace());
-            attachedBlock.setType(material);
-        } else {
-            Bukkit.getLogger().warning("Unable to determine the attached face for block at " + block.getLocation());
-        }
+        // Directly update the block type to indicate the station status
+        block.setType(material);
     }
+
 
 }

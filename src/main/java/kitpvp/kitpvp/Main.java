@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.*;
 
 import abilities.*;
+import gameplay.RandomChest;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -58,6 +59,9 @@ public class Main extends JavaPlugin implements Listener {
     private ScoreboardManager scoreboardManager;
 
     SoupRefillStation soupRefillStation = new SoupRefillStation(this);
+
+    private RandomChest randomChest;
+
 
 
     private Scoreboard s;
@@ -121,6 +125,10 @@ public class Main extends JavaPlugin implements Listener {
         getCommand("addcoins").setExecutor(economyCommands);
         getCommand("removecoins").setExecutor(economyCommands);
 
+        RandomChest randomChest = new RandomChest(this);
+        getCommand("setchestlocation").setExecutor(randomChest);
+        getCommand("removechestlocation").setExecutor(randomChest);
+        getServer().getPluginManager().registerEvents(randomChest, this);
         // Register abilities
         registerEventsAbilities();
 
@@ -187,6 +195,7 @@ public class Main extends JavaPlugin implements Listener {
         saveCoinData();
         this.premiumKitManager.saveKitOwnership();
         scoreboardManager.saveData();
+
 
 
     }

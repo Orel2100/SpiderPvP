@@ -31,7 +31,14 @@ commands:
     description: Disables the particle effects for the player.
     usage: /disableparticles
     aliases: [pd]
-
+  setchestlocation:
+    description: set reward spawn
+    usage: /setchestlocation
+    aliases: [scl]
+  removechestlocation:
+    description: remove reward spawn
+    usage: /removechestlocation
+    aliases: [rcl]
 permissions:
   kitpvp.addcoins:
     description: Allows adding coins to players.
