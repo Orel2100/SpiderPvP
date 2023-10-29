@@ -57,8 +57,9 @@ public class SoupRefillStation implements Listener {
                 if (soupAmounts.get(attachedBlock) > 0) {
                     refillSoup(player);
                     soupAmounts.put(attachedBlock, soupAmounts.get(attachedBlock) - 1);
-                    sign.setLine(2, "Soup: " + soupAmounts.get(attachedBlock)); // Live update
-                    sign.update();
+
+                    // Update all attached signs
+                    updateStationStatus(attachedBlock, Material.GREEN_WOOL);
 
                     if (soupAmounts.get(attachedBlock) == 0) {
                         updateStationStatus(attachedBlock, Material.RED_WOOL);
@@ -74,6 +75,7 @@ public class SoupRefillStation implements Listener {
             }
         }
     }
+
 
 
     private void refillSoup(Player player) {

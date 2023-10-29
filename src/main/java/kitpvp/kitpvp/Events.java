@@ -47,7 +47,7 @@ public class Events implements Listener {
         }
 
         // Check if the player right-clicked with a Mushroom Stew
-        if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) && itemInHand.getType() == Material.MUSHROOM_STEW) {
+        if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK || action == Action.LEFT_CLICK_BLOCK || action == Action.LEFT_CLICK_AIR) && itemInHand.getType() == Material.MUSHROOM_STEW) {
             // Remove the Mushroom Stew from the player's hand
             itemInHand.setAmount(itemInHand.getAmount() - 1);
             player.getInventory().setItemInMainHand(itemInHand.getAmount() > 0 ? itemInHand : null);

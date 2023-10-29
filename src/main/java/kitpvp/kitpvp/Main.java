@@ -74,6 +74,8 @@ public class Main extends JavaPlugin implements Listener {
 
 
 
+
+
     @Override
     public void onEnable() {
         instance = this;
@@ -125,10 +127,11 @@ public class Main extends JavaPlugin implements Listener {
         getCommand("addcoins").setExecutor(economyCommands);
         getCommand("removecoins").setExecutor(economyCommands);
 
-        RandomChest randomChest = new RandomChest(this);
+        RandomChest randomChest = new RandomChest(this, economyManager);
         getCommand("setchestlocation").setExecutor(randomChest);
         getCommand("removechestlocation").setExecutor(randomChest);
         getServer().getPluginManager().registerEvents(randomChest, this);
+
         // Register abilities
         registerEventsAbilities();
 
