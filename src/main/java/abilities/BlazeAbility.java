@@ -82,14 +82,17 @@ public class BlazeAbility implements Listener {
                 Location newLeftSide = player.getLocation().subtract(newX * 3, -3, newZ * 3);
 
                 blaze1.teleport(newRightSide);
+                blaze1.setCustomName(ChatColor.GREEN + player.getName() + "'s" + "Blaze");
                 blaze2.teleport(newLeftSide);
+                blaze2.setCustomName(ChatColor.GREEN + player.getName() + "'s" + "Blaze");
 
-                // Ensure blazes don't target the player who summoned them
+
+                // Ensure blazes don't target the player who summoned them or each other
                 for (Blaze blaze : blazes) {
-                    if (blaze.getTarget() == player) {
+                    if (blaze.getTarget() == player || blaze.getTarget() == blaze1 || blaze.getTarget() == blaze2) {
                         blaze.setTarget(null);
                     }
-                    // Find the nearest target (excluding the player who summoned the blazes)
+                    // Find the nearest target (excluding the player who summoned the blazes and other blazes)
                     Entity target = blaze.getNearbyEntities(20, 20, 20).stream()
                             .filter(e -> (e instanceof Player || e instanceof Monster) && e != player && e != blaze1 && e != blaze2)
                             .findFirst().orElse(null);
@@ -99,7 +102,7 @@ public class BlazeAbility implements Listener {
                     }
                 }
             }
-        }.runTaskTimer(plugin, 0, 1); // Update every tick
+        }.runTaskTimer(plugin, 0, 10); // Update every half-second
 
         new BukkitRunnable() {
             @Override
@@ -110,6 +113,7 @@ public class BlazeAbility implements Listener {
             }
         }.runTaskLater(plugin, 20 * 20); // Despawn after 20 seconds
     }
+
 
 
 

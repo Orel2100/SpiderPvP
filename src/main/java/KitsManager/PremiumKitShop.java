@@ -1,5 +1,6 @@
-package kitpvp.kitpvp;
+package KitsManager;
 
+import kitpvp.kitpvp.EconomyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -23,12 +24,13 @@ public class PremiumKitShop implements Listener {
 
     // Enum for Kits
     public enum Kit {
-        ELITE_WARRIOR("Elite Warrior Kit", Material.DIAMOND_SWORD, 500, 10),
-        ENDERMAN("Enderman Kit", Material.ENDER_EYE, 1000, 13),
-        WITHER("Wither Kit", Material.WITHER_SKELETON_SKULL, 1500, 16),
-        AERO("Aero Kit", Material.FEATHER, 2000, 24),
-        JEDI("Jedi Kit", Material.NETHER_STAR, 2500, 26),
-        BLAZE("Blaze Kit", Material.BLAZE_ROD, 3000, 23);
+        ELITE_WARRIOR("Elite Warrior Kit", Material.DIAMOND_SWORD, 500, 3),
+        ENDERMAN("Enderman Kit", Material.ENDER_EYE, 1000, 10),
+        WITHER("Wither Kit", Material.WITHER_SKELETON_SKULL, 1500, 5),
+        AERO("Aero Kit", Material.FEATHER, 2000, 16),
+        JEDI("Jedi Kit", Material.NETHER_STAR, 2500, 12),
+        BLAZE("Blaze Kit", Material.BLAZE_ROD, 3000, 14);
+
         private final String name;
         private final Material material;
         private final int cost;

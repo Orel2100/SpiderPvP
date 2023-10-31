@@ -3,6 +3,9 @@ package kitpvp.kitpvp;
 import java.io.File;
 import java.util.*;
 
+import KitsManager.KitManager;
+import KitsManager.PremiumKitManager;
+import KitsManager.PremiumKitShop;
 import abilities.*;
 import gameplay.ArenaCommand;
 import gameplay.RandomChest;
@@ -11,7 +14,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;

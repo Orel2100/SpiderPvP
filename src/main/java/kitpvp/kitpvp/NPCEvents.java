@@ -1,7 +1,8 @@
 package kitpvp.kitpvp;
 
+import KitsManager.KitManager;
+import KitsManager.PremiumKitShop;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

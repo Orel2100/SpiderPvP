@@ -1,4 +1,4 @@
-package kitpvp.kitpvp;
+package KitsManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
+
+import kitpvp.kitpvp.EconomyManager;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -222,12 +224,12 @@ public class PremiumKitManager implements Listener {
             if (i != 10 && i != 13 && i != 16 && i != 24)
                 kitMenuPremium.setItem(i, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
         }
-        createKitMenuItem(kitMenuPremium, 10, Material.DIAMOND_SWORD, "Elite Warrior Kit");
-        createKitMenuItem(kitMenuPremium, 13, Material.ENDER_EYE, "Enderman Kit");
-        createKitMenuItem(kitMenuPremium, 16, Material.WITHER_SKELETON_SKULL, "Wither Kit");
-        createKitMenuItem(kitMenuPremium, 24, Material.FEATHER, "Aero Kit");
-        createKitMenuItem(kitMenuPremium, 21, Material.NETHER_STAR, ChatColor.GREEN + "Jedi Kit");
-        createKitMenuItem(kitMenuPremium, 26, Material.BLAZE_ROD, ChatColor.GREEN + "Blaze Kit");
+        createKitMenuItem(kitMenuPremium, 3, Material.DIAMOND_SWORD, "Elite Warrior Kit");
+        createKitMenuItem(kitMenuPremium, 10, Material.ENDER_EYE, "Enderman Kit");
+        createKitMenuItem(kitMenuPremium, 5, Material.WITHER_SKELETON_SKULL, "Wither Kit");
+        createKitMenuItem(kitMenuPremium, 16, Material.FEATHER, "Aero Kit");
+        createKitMenuItem(kitMenuPremium, 12, Material.NETHER_STAR, ChatColor.GREEN + "Jedi Kit");
+        createKitMenuItem(kitMenuPremium, 14, Material.BLAZE_ROD, ChatColor.GREEN + "Blaze Kit");
         player.openInventory(kitMenuPremium);
     }
 
