@@ -39,6 +39,12 @@ commands:
     description: remove reward spawn
     usage: /removechestlocation
     aliases: [rcl]
+  setarenaspawn:
+    description: Set a new spawn point for the arena.
+    usage: /setarenaspawn
+  arena:
+    description: Teleport to a random spawn point in the arena.
+    usage: /arena
 permissions:
   kitpvp.addcoins:
     description: Allows adding coins to players.

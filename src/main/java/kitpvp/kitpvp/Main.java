@@ -4,7 +4,9 @@ import java.io.File;
 import java.util.*;
 
 import abilities.*;
+import gameplay.ArenaCommand;
 import gameplay.RandomChest;
+import gameplay.SetArenaSpawnCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -132,6 +134,12 @@ public class Main extends JavaPlugin implements Listener {
         getCommand("removechestlocation").setExecutor(randomChest);
         getServer().getPluginManager().registerEvents(randomChest, this);
 
+
+        //Arena Commands
+        this.getCommand("setarenaspawn").setExecutor(new SetArenaSpawnCommand(this));
+        this.getCommand("arena").setExecutor(new ArenaCommand(this));
+
+
         // Register abilities
         registerEventsAbilities();
 
@@ -156,6 +164,7 @@ public class Main extends JavaPlugin implements Listener {
         pm.registerEvents(new BerserkerAbility(this), this);
         pm.registerEvents(new EndermanAbility(), this);
         pm.registerEvents(new JediAbility(), this);
+        pm.registerEvents(new BlazeAbility(this), this);
         pm.registerEvents(new WitherAbility(this), this);
         pm.registerEvents(new SoupRefillStation(this), this);
         getServer().getPluginManager().registerEvents(particleEffectManager, this);

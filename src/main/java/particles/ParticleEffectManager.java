@@ -30,7 +30,7 @@ public class ParticleEffectManager implements Listener {
         FIRE_WATER_WINGS("Fire & Water Wings", "FEATHER", "kitpvp.effect.firewaterwings"),
         SPIRAL("Spiral", "ENDER_PEARL", "kitpvp.effect.spiral"),
         FIRE_RING("Fire Ring", "BLAZE_POWDER", "kitpvp.effect.firering"),
-        GALAXY_ORBIT("Enchanted Orbit", "ENCHATING_TABLE", "kitpvp.effect.enchant");
+        GALAXY_ORBIT("Enchanted Orbit", "ENCHANTING_TABLE", "kitpvp.effect.enchant");
 
         private final String displayName;
         private final String iconMaterial;
@@ -84,7 +84,7 @@ public class ParticleEffectManager implements Listener {
                     displayGalaxyOrbit(player);
                     break;
             }
-        }, 0L, 5L);
+        }, 0L, 10L);
         particleTasks.put(player.getUniqueId(), taskId);
     }
 
@@ -166,16 +166,16 @@ public class ParticleEffectManager implements Listener {
             double angle = 2 * Math.PI * i / 10;
             double x = Math.cos(angle);
             double z = Math.sin(angle);
-            player.spawnParticle(Particle.END_ROD, player.getLocation().add(x, 2 + 0.1 * i, z), 1);
+            player.spawnParticle(Particle.VILLAGER_ANGRY, player.getLocation().add(x, 2 + 0.1 * i, z), 1);
         }
     }
 
     private void displayFireRing(Player player) {
         for (int i = 0; i < 36; i++) {
             double angle = 2 * Math.PI * i / 36;
-            double x = 1.5 * Math.cos(angle);
-            double z = 1.5 * Math.sin(angle);
-            player.spawnParticle(Particle.FLAME, player.getLocation().add(x, 2, z), 1, 0, 0, 0, 0);
+            double x = 0.5 * Math.cos(angle);
+            double z = 0.5 * Math.sin(angle);
+            player.spawnParticle(Particle.FLAME, player.getLocation().add(x, 2.1, z), 1, 0, 0, 0, 0);
         }
     }
 

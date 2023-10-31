@@ -27,8 +27,8 @@ public class PremiumKitShop implements Listener {
         ENDERMAN("Enderman Kit", Material.ENDER_EYE, 1000, 13),
         WITHER("Wither Kit", Material.WITHER_SKELETON_SKULL, 1500, 16),
         AERO("Aero Kit", Material.FEATHER, 2000, 24),
-        JEDI("Jedi Kit", Material.NETHER_STAR, 2500, 26); // Assuming slot 26 for demonstration
-
+        JEDI("Jedi Kit", Material.NETHER_STAR, 2500, 26),
+        BLAZE("Blaze Kit", Material.BLAZE_ROD, 3000, 23);
         private final String name;
         private final Material material;
         private final int cost;
@@ -115,37 +115,38 @@ public class PremiumKitShop implements Listener {
             case "Elite Warrior Kit":
                 lore.add(ChatColor.GRAY + "");
                 lore.add(ChatColor.GRAY + "Ability: Lightning Strike (Right-Click)");
-                lore.add(ChatColor.GRAY + "Armor: Full Diamond");
                 lore.add(ChatColor.GRAY + "Weapon: Diamond Sword");
-                lore.add(ChatColor.GRAY + "Cooldown: 15s");
+                lore.add(ChatColor.RED + "Cooldown: 15s");
                 break;
             case "Enderman Kit":
                 lore.add(ChatColor.GRAY + "");
                 lore.add(ChatColor.GRAY + "Ability: Teleportation (Right-Click)");
-                lore.add(ChatColor.GRAY + "Armor: Iron with Diamond Helmet");
                 lore.add(ChatColor.GRAY + "Weapon: Iron Sword");
-                lore.add(ChatColor.GRAY + "Cooldown: 15s");
+                lore.add(ChatColor.RED + "Cooldown: 15s");
                 break;
             case "Wither Kit":
                 lore.add(ChatColor.GRAY + "");
                 lore.add(ChatColor.GRAY + "Ability: Withering Blast (Right-Click)");
-                lore.add(ChatColor.GRAY + "Armor: Chainmail with Gold Chestplate");
                 lore.add(ChatColor.GRAY + "Weapon: Iron Sword & Blaze Rod");
-                lore.add(ChatColor.GRAY + "Cooldown: 15s");
+                lore.add(ChatColor.RED + "Cooldown: 15s");
                 break;
             case "Aero Kit":
                 lore.add(ChatColor.GRAY + "");
                 lore.add(ChatColor.GRAY + "Ability: Dash (Right-Click)");
-                lore.add(ChatColor.GRAY + "Armor: Chainmail");
                 lore.add(ChatColor.GRAY + "Weapon: Iron Sword");
-                lore.add(ChatColor.GRAY + "Cooldown: 10s");
+                lore.add(ChatColor.RED + "Cooldown: 10s");
                 break;
             case "Jedi Kit":
                 lore.add(ChatColor.GRAY + "");
                 lore.add(ChatColor.GRAY + "Ability: Force Push (Shift)");
-                lore.add(ChatColor.GRAY + "Armor: Leather");
                 lore.add(ChatColor.GRAY + "Weapon: Lightsaber");
-                lore.add(ChatColor.GRAY + "Cooldown: 10s");
+                lore.add(ChatColor.RED + "Cooldown: 10s");
+                break;
+            case "Blaze Kit":
+                lore.add(ChatColor.GRAY + "");
+                lore.add(ChatColor.GRAY + "Ability: Blaze Rampage (Right Click)");
+                lore.add(ChatColor.GRAY + "Weapon: Iron Sword");
+                lore.add(ChatColor.RED + "Cooldown: 30s");
                 break;
         }
 

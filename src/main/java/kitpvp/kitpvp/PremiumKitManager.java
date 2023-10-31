@@ -27,6 +27,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.messaging.ChannelNameTooLongException;
 
 public class PremiumKitManager implements Listener {
     private final JavaPlugin plugin;
@@ -147,6 +148,17 @@ public class PremiumKitManager implements Listener {
                     player.closeInventory();
                 }
                 break;
+            case BLAZE_ROD:
+                if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GREEN + "Blaze Kit")){
+                    if(doesPlayerOwnKit(player, "Blaze Kit")){
+                        giveBlazekit(player);
+                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GREEN + "You've equipped the BLaze Kit!"));
+                    } else {
+                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.RED + "You dont own the Blaze Kit"));
+                    }
+                    player.closeInventory();
+                }
+                break;
 
         }
     }
@@ -215,6 +227,7 @@ public class PremiumKitManager implements Listener {
         createKitMenuItem(kitMenuPremium, 16, Material.WITHER_SKELETON_SKULL, "Wither Kit");
         createKitMenuItem(kitMenuPremium, 24, Material.FEATHER, "Aero Kit");
         createKitMenuItem(kitMenuPremium, 21, Material.NETHER_STAR, ChatColor.GREEN + "Jedi Kit");
+        createKitMenuItem(kitMenuPremium, 26, Material.BLAZE_ROD, ChatColor.GREEN + "Blaze Kit");
         player.openInventory(kitMenuPremium);
     }
 
@@ -260,7 +273,13 @@ public class PremiumKitManager implements Listener {
     public void giveWitherkit(Player player) {
         player.getInventory().clear();
         player.getInventory().addItem(new ItemStack[]{new ItemStack(Material.IRON_SWORD)});
-        player.getInventory().addItem(new ItemStack[]{new ItemStack(Material.BLAZE_ROD)});
+        ItemStack homingSkullItem = new ItemStack(Material.BLAZE_ROD);
+        ItemMeta homingSkullMeta = homingSkullItem.getItemMeta();
+
+        homingSkullMeta.setDisplayName(ChatColor.GOLD + "Homing Skull");
+        homingSkullItem.setItemMeta(homingSkullMeta);
+
+        player.getInventory().addItem(homingSkullItem);
         player.getInventory().setHelmet(new ItemStack(Material.CHAINMAIL_HELMET));
         player.getInventory().setChestplate(new ItemStack(Material.GOLDEN_CHESTPLATE));
         player.getInventory().setLeggings(new ItemStack(Material.CHAINMAIL_LEGGINGS));
@@ -311,9 +330,10 @@ public class PremiumKitManager implements Listener {
         jediRobeChestplate.setItemMeta(chestplateMeta);
         player.getInventory().setChestplate(jediRobeChestplate);
 
-        // Force Push (Blaze Rod)
+        // Force Push (ENDER PORTAL)
         ItemStack forcePush = new ItemStack(Material.LEGACY_ENDER_PORTAL_FRAME);
         player.getInventory().addItem(forcePush);
+
 
         for (int i = 0; i < player.getInventory().getSize(); i++) {
             ItemStack item = player.getInventory().getItem(i);
@@ -322,4 +342,40 @@ public class PremiumKitManager implements Listener {
             }
         }
     }
+    private void giveBlazekit(Player player) {
+        player.getInventory().clear();
+        // Lightsaber
+        ItemStack blazerod = new ItemStack(Material.IRON_SWORD);
+        player.getInventory().addItem(blazerod);
+
+        // Jedi Robes (Brown Leather Armor)
+        ItemStack blazeChestplate = new ItemStack(Material.LEATHER_CHESTPLATE);
+        LeatherArmorMeta chestplateMeta = (LeatherArmorMeta) blazeChestplate.getItemMeta();
+        chestplateMeta.setColor(Color.YELLOW); // Brown color for the Jedi robe
+        blazeChestplate.setItemMeta(chestplateMeta);
+        player.getInventory().setChestplate(blazeChestplate);
+        player.getInventory().setHelmet(new ItemStack(Material.GOLDEN_HELMET));
+        player.getInventory().setLeggings(new ItemStack(Material.GOLDEN_LEGGINGS));
+        player.getInventory().setBoots(new ItemStack(Material.GOLDEN_BOOTS));
+
+        // blaze rampage (Blaze Rod)
+        ItemStack blazeRodItem = new ItemStack(Material.BLAZE_ROD);
+        ItemMeta blazeRodMeta = blazeRodItem.getItemMeta();
+
+        blazeRodMeta.setDisplayName(ChatColor.GOLD + "Blaze Rampage");
+        blazeRodItem.setItemMeta(blazeRodMeta);
+
+        player.getInventory().addItem(blazeRodItem);
+
+
+        for (int i = 0; i < player.getInventory().getSize(); i++) {
+            ItemStack item = player.getInventory().getItem(i);
+            if (item == null || item.getType() == Material.AIR) {
+                player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));
+            }
+        }
+    }
+
+
+
 }

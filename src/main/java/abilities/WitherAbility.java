@@ -33,7 +33,7 @@ public class WitherAbility implements Listener {
     public void onWitherAbilityUse(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         ItemStack itemInHand = player.getInventory().getItemInMainHand();
-        if (itemInHand.getType() == Material.BLAZE_ROD) {
+        if (itemInHand.getType() == Material.BLAZE_ROD && itemInHand.getItemMeta().getDisplayName().equals("Homing Skull")) {
             long remainingCooldown = checkCooldown(player, "_wither");
             if (remainingCooldown == 0L) {
                 Player target = getClosestTarget(player, 50); // 50 is the max distance to search for a player
