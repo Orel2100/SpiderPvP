@@ -1,4 +1,4 @@
-package kitpvp.kitpvp;
+package economy;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

@@ -1,4 +1,4 @@
-package kitpvp.kitpvp;
+package economy;
 
 import java.util.HashMap;
 import java.util.UUID;

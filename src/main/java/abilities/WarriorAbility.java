@@ -60,7 +60,11 @@ public class WarriorAbility implements Listener {
 
     public boolean hasWarriorKit(Player player) {
         // Logic to check if the player has the Warrior kit
-        return true; // Placeholder
+        if (player.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GREEN + "Elite Warrior Sword")) {
+
+            return true; // Placeholder
+        }
+        return false;
     }
 
     public boolean holdingKitItem(Player player, Material material, String displayName) {
@@ -74,8 +78,8 @@ public class WarriorAbility implements Listener {
         if (!(event.getDamager() instanceof Player)) return;
         Player player = (Player) event.getDamager();
         long remainingCooldown = checkCooldown(player, "_warrior");
-        if (hasWarriorKit(player) && holdingKitItem(player, Material.IRON_SWORD, ChatColor.GREEN + "Warrior Sword")) {
-            if (hasWarriorKit(player) && holdingKitItem(player, Material.IRON_SWORD, ChatColor.GREEN + "Warrior Sword"))
+        if (hasWarriorKit(player) && holdingKitItem(player, Material.IRON_SWORD, ChatColor.GREEN + "Elite Warrior Sword")) {
+            if (hasWarriorKit(player) && holdingKitItem(player, Material.IRON_SWORD, ChatColor.GREEN + "Elite Warrior Sword"))
                 if (remainingCooldown == 0L) {
                     // Create the visual and sound effects of a lightning strike without causing fire
                     player.getWorld().strikeLightningEffect(event.getEntity().getLocation());

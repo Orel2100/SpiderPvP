@@ -7,6 +7,8 @@ import KitsManager.KitManager;
 import KitsManager.PremiumKitManager;
 import KitsManager.PremiumKitShop;
 import abilities.*;
+import economy.EconomyCommands;
+import economy.EconomyManager;
 import gameplay.ArenaCommand;
 import gameplay.RandomChest;
 import gameplay.SetArenaSpawnCommand;
@@ -141,6 +143,7 @@ public class Main extends JavaPlugin implements Listener {
         this.getCommand("setarenaspawn").setExecutor(new SetArenaSpawnCommand(this));
         this.getCommand("arena").setExecutor(new ArenaCommand(this));
 
+        //kit
 
         // Register abilities
         registerEventsAbilities();

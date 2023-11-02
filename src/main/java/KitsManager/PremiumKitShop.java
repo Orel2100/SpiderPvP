@@ -1,6 +1,6 @@
 package KitsManager;
 
-import kitpvp.kitpvp.EconomyManager;
+import economy.EconomyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -60,10 +60,6 @@ public class PremiumKitShop implements Listener {
         }
     }
 
-
-
-
-
     private final Map<Material, Kit> kitByMaterial = new HashMap<>();
 
     public PremiumKitShop(EconomyManager economyManager, PremiumKitManager premiumKitManager) {
@@ -96,8 +92,6 @@ public class PremiumKitShop implements Listener {
         }
         player.openInventory(shop);
     }
-
-
 
     private void createShopItem(Inventory inventory, int slot, Material material, String displayName, int cost, Player player) {
         ItemStack item = new ItemStack(material);
@@ -156,10 +150,6 @@ public class PremiumKitShop implements Listener {
         item.setItemMeta(meta);
         inventory.setItem(slot, item);
     }
-
-
-
-
 
     @EventHandler
     public void handleInventoryClick(InventoryClickEvent event) {

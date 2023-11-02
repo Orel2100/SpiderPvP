@@ -95,10 +95,12 @@ public class KitManager {
     }
 
     private void giveWarriorKit(Player player) {
+        player.getInventory().clear();
         ItemStack WarriorSword = new ItemStack(Material.IRON_SWORD);
         ItemMeta meta = WarriorSword.getItemMeta();
         meta.setDisplayName(ChatColor.GREEN + "Warrior Sword");
         WarriorSword.setItemMeta(meta);
+        WarriorSword.getItemMeta().addEnchant(Enchantment.DAMAGE_ALL, 1, true);
         player.getInventory().clear();
         player.getInventory().addItem(new ItemStack[] { WarriorSword });
         player.getInventory().setHelmet(new ItemStack(Material.IRON_HELMET));
@@ -152,6 +154,7 @@ public class KitManager {
 
 
     private void giveBerserkerKit(Player player) {
+        player.getInventory().clear();
         ItemStack berserkerAxe = new ItemStack(Material.DIAMOND_AXE);
         ItemMeta meta = berserkerAxe.getItemMeta();
         meta.setDisplayName(ChatColor.GREEN + "Berserker Axe");

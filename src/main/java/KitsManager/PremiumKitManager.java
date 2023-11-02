@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
-import kitpvp.kitpvp.EconomyManager;
+import economy.EconomyManager;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -17,11 +17,11 @@ import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.inventory.Inventory;
@@ -29,7 +29,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.messaging.ChannelNameTooLongException;
 
 public class PremiumKitManager implements Listener {
     private final JavaPlugin plugin;
@@ -96,7 +95,7 @@ public class PremiumKitManager implements Listener {
             return;
         switch (event.getCurrentItem().getType()) {
             case DIAMOND_SWORD:
-                if (event.getCurrentItem().getItemMeta().getDisplayName().equals("Elite Warrior Kit")) {
+                if (event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.GREEN + "Elite Warrior Kit")) {
                     if (doesPlayerOwnKit(player, "Elite Warrior Kit")) {
                         giveEliteWarriorKit(player);
                         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GREEN + "You've equipped the Elite Warrior kit!"));
@@ -107,9 +106,9 @@ public class PremiumKitManager implements Listener {
                 }
                 break;
             case ENDER_EYE:
-                if (event.getCurrentItem().getItemMeta().getDisplayName().equals("Enderman Kit")) {
+                if (event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.GREEN + "Enderman Kit")) {
                     if (doesPlayerOwnKit(player, "Enderman Kit")) {
-                        giveEndermankit(player);
+                        giveEndermanKit(player);
                         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GREEN + "You've equipped the Enderman kit!"));
                     } else {
                         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.RED + "You don't own the Enderman Kit!"));
@@ -118,9 +117,9 @@ public class PremiumKitManager implements Listener {
                 }
                 break;
             case WITHER_SKELETON_SKULL:
-                if (event.getCurrentItem().getItemMeta().getDisplayName().equals("Wither Kit")) {
+                if (event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.GREEN + "Wither Kit")) {
                     if (doesPlayerOwnKit(player, "Wither Kit")) {
-                        giveWitherkit(player);
+                        giveWitherKit(player);
                         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GREEN + "You've equipped the Wither kit!"));
                     } else {
                         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.RED + "You don't own the Wither Kit!"));
@@ -129,7 +128,7 @@ public class PremiumKitManager implements Listener {
                 }
                 break;
             case FEATHER:
-                if (event.getCurrentItem().getItemMeta().getDisplayName().equals("Aero Kit")) {
+                if (event.getCurrentItem().getItemMeta().getDisplayName().equals(ChatColor.GREEN + "Aero Kit")) {
                     if (doesPlayerOwnKit(player, "Aero Kit")) {
                         giveAeroKit(player);
                         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GREEN + "You've equipped the Aero kit!"));
@@ -151,9 +150,9 @@ public class PremiumKitManager implements Listener {
                 }
                 break;
             case BLAZE_ROD:
-                if(event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GREEN + "Blaze Kit")){
-                    if(doesPlayerOwnKit(player, "Blaze Kit")){
-                        giveBlazekit(player);
+                if (event.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(ChatColor.GREEN + "Blaze Kit")) {
+                    if (doesPlayerOwnKit(player, "Blaze Kit")) {
+                        giveBlazeKit(player);
                         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GREEN + "You've equipped the BLaze Kit!"));
                     } else {
                         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.RED + "You dont own the Blaze Kit"));
@@ -206,6 +205,7 @@ public class PremiumKitManager implements Listener {
             loadKitOwnership();
     }
 
+
     public void ensureKitOwnershipFileExists() {
         if (!this.plugin.getDataFolder().exists())
             this.plugin.getDataFolder().mkdirs();
@@ -218,166 +218,203 @@ public class PremiumKitManager implements Listener {
             }
     }
 
-    public void openPremiumKitSelectionMenu(Player player) {
-        Inventory kitMenuPremium = Bukkit.createInventory(null, 27, "Select Your Premium Kit");
-        for (int i = 0; i < 27; i++) {
-            if (i != 10 && i != 13 && i != 16 && i != 24)
-                kitMenuPremium.setItem(i, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
+    private int getKitPrice(String kitName) {
+        switch (kitName) {
+            case "Elite Warrior Kit":
+                return 500;
+            case "Enderman Kit":
+                return 1000;
+            case "Wither Kit":
+                return 1500;
+            case "Aero Kit":
+                return 2000;
+            case "Jedi Kit":
+                return 2500;
+            case "Blaze Kit":
+                return 3000;
+            default:
+                return 0;
         }
-        createKitMenuItem(kitMenuPremium, 3, Material.DIAMOND_SWORD, "Elite Warrior Kit");
-        createKitMenuItem(kitMenuPremium, 10, Material.ENDER_EYE, "Enderman Kit");
-        createKitMenuItem(kitMenuPremium, 5, Material.WITHER_SKELETON_SKULL, "Wither Kit");
-        createKitMenuItem(kitMenuPremium, 16, Material.FEATHER, "Aero Kit");
-        createKitMenuItem(kitMenuPremium, 12, Material.NETHER_STAR, ChatColor.GREEN + "Jedi Kit");
-        createKitMenuItem(kitMenuPremium, 14, Material.BLAZE_ROD, ChatColor.GREEN + "Blaze Kit");
+    }
+
+
+    public void openPremiumKitSelectionMenu(Player player) {
+        Inventory kitMenuPremium = Bukkit.createInventory(null, 27, PREMIUM_KIT_SELECTOR_TITLE);
+
+        // Set the glass panes in all slots initially
+        for (int i = 0; i < 27; i++) {
+            kitMenuPremium.setItem(i, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
+        }
+
+        // Update the method calls to include the player parameter and correct slots
+        createKitMenuItem(kitMenuPremium, 3, Material.DIAMOND_SWORD, ChatColor.GREEN + "Elite Warrior Kit", player);
+        createKitMenuItem(kitMenuPremium, 10, Material.ENDER_EYE, ChatColor.GREEN +"Enderman Kit", player);
+        createKitMenuItem(kitMenuPremium, 5, Material.WITHER_SKELETON_SKULL, ChatColor.GREEN +"Wither Kit", player);
+        createKitMenuItem(kitMenuPremium, 16, Material.FEATHER, ChatColor.GREEN +"Aero Kit", player);
+        createKitMenuItem(kitMenuPremium, 12, Material.NETHER_STAR, ChatColor.GREEN + "Jedi Kit", player);
+        createKitMenuItem(kitMenuPremium, 14, Material.BLAZE_ROD, ChatColor.GREEN + "Blaze Kit", player);
+
         player.openInventory(kitMenuPremium);
     }
 
-    private void createKitMenuItem(Inventory inventory, int slot, Material material, String displayName) {
+    private void createKitMenuItem(Inventory inventory, int slot, Material material, String displayName, Player player) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(displayName);
+
+        // Create a list to hold the lore
+        List<String> lore = new ArrayList<>();
+
+        // Add lore based on the kit name
+        switch (displayName) {
+            case "Elite Warrior Kit":
+                lore.add(ChatColor.GRAY + "Ability: Lightning Strike (Right-Click)");
+                lore.add(ChatColor.GRAY + "Weapon: Diamond Sword");
+                lore.add(ChatColor.RED + "Cooldown: 15s");
+                break;
+            case "Enderman Kit":
+                lore.add(ChatColor.GRAY + "Ability: Teleportation (Right-Click)");
+                lore.add(ChatColor.GRAY + "Weapon: Iron Sword");
+                lore.add(ChatColor.RED + "Cooldown: 15s");
+                break;
+            case "Wither Kit":
+                lore.add(ChatColor.GRAY + "Ability: Withering Blast (Right-Click)");
+                lore.add(ChatColor.GRAY + "Weapon: Iron Sword & Blaze Rod");
+                lore.add(ChatColor.RED + "Cooldown: 15s");
+                break;
+            case "Aero Kit":
+                lore.add(ChatColor.GRAY + "Ability: Dash (Right-Click)");
+                lore.add(ChatColor.GRAY + "Weapon: Iron Sword");
+                lore.add(ChatColor.RED + "Cooldown: 10s");
+                break;
+            case "Jedi Kit":
+                lore.add(ChatColor.GRAY + "Ability: Force Push (Shift)");
+                lore.add(ChatColor.GRAY + "Weapon: Lightsaber");
+                lore.add(ChatColor.RED + "Cooldown: 10s");
+                break;
+            case "Blaze Kit":
+                lore.add(ChatColor.GRAY + "Ability: Blaze Rampage (Right Click)");
+                lore.add(ChatColor.GRAY + "Weapon: Iron Sword");
+                lore.add(ChatColor.RED + "Cooldown: 30s");
+                break;
+        }
+
+        // Add ownership status to the lore
+        if (doesPlayerOwnKit(player, ChatColor.stripColor(displayName))) {
+            lore.add(ChatColor.GREEN + "Owned");
+        } else {
+            lore.add(ChatColor.RED + "Not Owned");
+        }
+
+        // Set the lore to the item meta
+        meta.setLore(lore);
         item.setItemMeta(meta);
+
+        // Place the item in the inventory
         inventory.setItem(slot, item);
     }
 
+
     public void giveEliteWarriorKit(Player player) {
         player.getInventory().clear();
-        player.getInventory().addItem(new ItemStack[]{new ItemStack(Material.DIAMOND_SWORD)});
-        player.getInventory().setHelmet(new ItemStack(Material.DIAMOND_HELMET));
-        player.getInventory().setChestplate(new ItemStack(Material.DIAMOND_CHESTPLATE));
-        player.getInventory().setLeggings(new ItemStack(Material.DIAMOND_LEGGINGS));
-        player.getInventory().setBoots(new ItemStack(Material.DIAMOND_BOOTS));
-        for (int i = 0; i < 36; i++) { // Main inventory slots are from 0 to 35
-            ItemStack item = player.getInventory().getItem(i);
-            if (item == null || item.getType() == Material.AIR) {
-                player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));
-            }
-        }
+        setArmor(player, Material.IRON_HELMET, Material.IRON_CHESTPLATE, Material.IRON_LEGGINGS, Material.IRON_BOOTS);
+        giveAbilityItem(player, Material.IRON_SWORD, ChatColor.GREEN  + "Elite Warrior Sword");
+        fillWithStew(player);
     }
 
-    public void giveEndermankit(Player player) {
+    // Enderman Kit - Chainmail Armor, Iron Sword, Teleportation Ability
+    public void giveEndermanKit(Player player) {
         player.getInventory().clear();
-        player.getInventory().addItem(new ItemStack[]{new ItemStack(Material.IRON_SWORD)});
-        player.getInventory().addItem(new ItemStack[]{new ItemStack(Material.ENDER_EYE)});
-        player.getInventory().setHelmet(new ItemStack(Material.DIAMOND_HELMET));
-        player.getInventory().setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
-        player.getInventory().setLeggings(new ItemStack(Material.IRON_LEGGINGS));
-        player.getInventory().setBoots(new ItemStack(Material.IRON_BOOTS));
-        for (int i = 0; i < 36; i++) { // Main inventory slots are from 0 to 35
-            ItemStack item = player.getInventory().getItem(i);
-            if (item == null || item.getType() == Material.AIR) {
-                player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));
-            }
-        }
+        setArmor(player, Material.CHAINMAIL_HELMET, Material.CHAINMAIL_CHESTPLATE, Material.CHAINMAIL_LEGGINGS, Material.CHAINMAIL_BOOTS);
+        player.getInventory().addItem(new ItemStack(Material.IRON_SWORD));
+        giveAbilityItem(player, Material.ENDER_EYE, "Teleport (Right Click)");
+        fillWithStew(player);
     }
 
-    public void giveWitherkit(Player player) {
+    // Wither Kit - Chainmail Armor, Sharpness I Stone Sword, Withering Blast Ability
+    public void giveWitherKit(Player player) {
         player.getInventory().clear();
-        player.getInventory().addItem(new ItemStack[]{new ItemStack(Material.IRON_SWORD)});
-        ItemStack homingSkullItem = new ItemStack(Material.BLAZE_ROD);
-        ItemMeta homingSkullMeta = homingSkullItem.getItemMeta();
-
-        homingSkullMeta.setDisplayName(ChatColor.GOLD + "Homing Skull");
-        homingSkullItem.setItemMeta(homingSkullMeta);
-
-        player.getInventory().addItem(homingSkullItem);
-        player.getInventory().setHelmet(new ItemStack(Material.CHAINMAIL_HELMET));
-        player.getInventory().setChestplate(new ItemStack(Material.GOLDEN_CHESTPLATE));
-        player.getInventory().setLeggings(new ItemStack(Material.CHAINMAIL_LEGGINGS));
-        player.getInventory().setBoots(new ItemStack(Material.CHAINMAIL_BOOTS));
-        for (int i = 0; i < 36; i++) { // Main inventory slots are from 0 to 35
-            ItemStack item = player.getInventory().getItem(i);
-            if (item == null || item.getType() == Material.AIR) {
-                player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));
-            }
-        }
+        setArmor(player, Material.CHAINMAIL_HELMET, Material.CHAINMAIL_CHESTPLATE, Material.CHAINMAIL_LEGGINGS, Material.CHAINMAIL_BOOTS);
+        giveItemWithEnchant(player, Material.STONE_SWORD, Enchantment.DAMAGE_ALL, 1);
+        giveAbilityItem(player, Material.BLAZE_ROD, "Homing Skull (Right Click)");
+        fillWithStew(player);
     }
 
+    // Aero Kit - Silver Colored Leather Armor, Sharpness I Stone Sword, Dash Ability
     public void giveAeroKit(Player player) {
         player.getInventory().clear();
-        ItemStack aeroSword = new ItemStack(Material.IRON_SWORD);
-        ItemMeta aeroSwordMeta = aeroSword.getItemMeta();
-        aeroSwordMeta.setDisplayName(ChatColor.AQUA + "Aero Sword");
-        aeroSword.setItemMeta(aeroSwordMeta);
-        player.getInventory().addItem(aeroSword);
-        ItemStack aeroFeather = new ItemStack(Material.FEATHER);
-        ItemMeta aeroFeatherMeta = aeroFeather.getItemMeta();
-        aeroFeatherMeta.setDisplayName("Aero Feather");
-        aeroFeather.setItemMeta(aeroFeatherMeta);
-        player.getInventory().addItem(aeroFeather);
-        player.getInventory().setHelmet(new ItemStack(Material.CHAINMAIL_HELMET));
-        player.getInventory().setChestplate(new ItemStack(Material.CHAINMAIL_CHESTPLATE));
-        player.getInventory().setLeggings(new ItemStack(Material.CHAINMAIL_LEGGINGS));
-        player.getInventory().setBoots(new ItemStack(Material.CHAINMAIL_BOOTS));
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.AQUA + "You've equipped the Aero kit!"));
-        for (int i = 0; i < 36; i++) { // Main inventory slots are from 0 to 35
-            ItemStack item = player.getInventory().getItem(i);
-            if (item == null || item.getType() == Material.AIR) {
-                player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));
-            }
-        }
+        setColoredArmor(player, Color.SILVER);
+        giveItemWithEnchant(player, Material.STONE_SWORD, Enchantment.DAMAGE_ALL, 1);
+        giveAbilityItem(player, Material.FEATHER, "Dash (Right Click)");
+        fillWithStew(player);
     }
 
+    // Jedi Kit - Maroon Colored Leather Armor, Sharpness I Iron Sword, Force Push Ability
     private void giveJediKit(Player player) {
         player.getInventory().clear();
-        // Lightsaber
-        ItemStack jedisword = new ItemStack(Material.IRON_SWORD);
-        player.getInventory().addItem(jedisword);
-
-        // Jedi Robes (Brown Leather Armor)
-        ItemStack jediRobeChestplate = new ItemStack(Material.LEATHER_CHESTPLATE);
-        LeatherArmorMeta chestplateMeta = (LeatherArmorMeta) jediRobeChestplate.getItemMeta();
-        chestplateMeta.setColor(Color.MAROON); // Brown color for the Jedi robe
-        jediRobeChestplate.setItemMeta(chestplateMeta);
-        player.getInventory().setChestplate(jediRobeChestplate);
-
-        // Force Push (ENDER PORTAL)
-        ItemStack forcePush = new ItemStack(Material.LEGACY_ENDER_PORTAL_FRAME);
-        player.getInventory().addItem(forcePush);
-
-
-        for (int i = 0; i < player.getInventory().getSize(); i++) {
-            ItemStack item = player.getInventory().getItem(i);
-            if (item == null || item.getType() == Material.AIR) {
-                player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));
-            }
-        }
+        setColoredArmor(player, Color.MAROON);
+        giveItemWithEnchant(player, Material.IRON_SWORD, Enchantment.DAMAGE_ALL, 1);
+        giveAbilityItem(player, Material.LEGACY_ENDER_PORTAL_FRAME, "Force Push (Shift)");
+        fillWithStew(player);
     }
-    private void giveBlazekit(Player player) {
+
+    // Blaze Kit - Gold Armor, Sharpness I Iron Sword, Blaze Rampage Ability
+    private void giveBlazeKit(Player player) {
         player.getInventory().clear();
-        // Lightsaber
-        ItemStack blazerod = new ItemStack(Material.IRON_SWORD);
-        player.getInventory().addItem(blazerod);
+        setArmor(player, Material.GOLDEN_HELMET, Material.GOLDEN_CHESTPLATE, Material.GOLDEN_LEGGINGS, Material.GOLDEN_BOOTS);
+        giveItemWithEnchant(player, Material.IRON_SWORD, Enchantment.DAMAGE_ALL, 1);
+        giveAbilityItem(player, Material.BLAZE_ROD, ChatColor.GOLD + "Blaze Rampage (Right Click)");
+        fillWithStew(player);
+    }
 
-        // Jedi Robes (Brown Leather Armor)
-        ItemStack blazeChestplate = new ItemStack(Material.LEATHER_CHESTPLATE);
-        LeatherArmorMeta chestplateMeta = (LeatherArmorMeta) blazeChestplate.getItemMeta();
-        chestplateMeta.setColor(Color.YELLOW); // Brown color for the Jedi robe
-        blazeChestplate.setItemMeta(chestplateMeta);
-        player.getInventory().setChestplate(blazeChestplate);
-        player.getInventory().setHelmet(new ItemStack(Material.GOLDEN_HELMET));
-        player.getInventory().setLeggings(new ItemStack(Material.GOLDEN_LEGGINGS));
-        player.getInventory().setBoots(new ItemStack(Material.GOLDEN_BOOTS));
+    // Helper method to set armor
+    private void setArmor(Player player, Material helmet, Material chestplate, Material leggings, Material boots) {
+        player.getInventory().setHelmet(new ItemStack(helmet));
+        player.getInventory().setChestplate(new ItemStack(chestplate));
+        player.getInventory().setLeggings(new ItemStack(leggings));
+        player.getInventory().setBoots(new ItemStack(boots));
+    }
 
-        // blaze rampage (Blaze Rod)
-        ItemStack blazeRodItem = new ItemStack(Material.BLAZE_ROD);
-        ItemMeta blazeRodMeta = blazeRodItem.getItemMeta();
+    // Helper method to set colored leather armor
+    private void setColoredArmor(Player player, Color color) {
+        ItemStack[] armor = new ItemStack[]{
+                new ItemStack(Material.LEATHER_HELMET),
+                new ItemStack(Material.LEATHER_CHESTPLATE),
+                new ItemStack(Material.LEATHER_LEGGINGS),
+                new ItemStack(Material.LEATHER_BOOTS)
+        };
+        for (ItemStack item : armor) {
+            LeatherArmorMeta meta = (LeatherArmorMeta) item.getItemMeta();
+            meta.setColor(color);
+            item.setItemMeta(meta);
+        }
+        player.getInventory().setArmorContents(armor);
+    }
 
-        blazeRodMeta.setDisplayName(ChatColor.GOLD + "Blaze Rampage");
-        blazeRodItem.setItemMeta(blazeRodMeta);
+    // Helper method to give an item with enchantment
+    private void giveItemWithEnchant(Player player, Material material, Enchantment enchantment, int level) {
+        ItemStack item = new ItemStack(material);
+        item.addEnchantment(enchantment, level);
+        player.getInventory().addItem(item);
+    }
 
-        player.getInventory().addItem(blazeRodItem);
+    // Helper method to give an ability item with custom name
+    private void giveAbilityItem(Player player, Material material, String abilityName) {
+        ItemStack abilityItem = new ItemStack(material);
+        ItemMeta meta = abilityItem.getItemMeta();
+        meta.setDisplayName(abilityName);
+        abilityItem.setItemMeta(meta);
+        player.getInventory().addItem(abilityItem);
+    }
 
-
-        for (int i = 0; i < player.getInventory().getSize(); i++) {
-            ItemStack item = player.getInventory().getItem(i);
-            if (item == null || item.getType() == Material.AIR) {
+    // Helper method to fill inventory with Mushroom Stew, excluding the off-hand slot
+    private void fillWithStew(Player player) {
+        for (int i = 0; i < 36; i++) { // Main inventory slots are from 0 to 35
+            if (player.getInventory().getItem(i) == null) {
                 player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));
             }
         }
+        // Ensure off-hand is not filled with stew
+        player.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
     }
-
-
-
 }

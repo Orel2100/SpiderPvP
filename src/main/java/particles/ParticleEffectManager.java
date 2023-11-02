@@ -1,42 +1,52 @@
+
 package particles;
 
-import org.bukkit.*;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.Vector;
+        import org.bukkit.Bukkit;
+        import org.bukkit.ChatColor;
+        import org.bukkit.Color;
+        import org.bukkit.Location;
+        import org.bukkit.Material;
+        import org.bukkit.Particle;
+        import org.bukkit.enchantments.Enchantment;
+        import org.bukkit.entity.Player;
+        import org.bukkit.event.EventHandler;
+        import org.bukkit.event.Listener;
+        import org.bukkit.event.inventory.InventoryClickEvent;
+        import org.bukkit.inventory.Inventory;
+        import org.bukkit.inventory.ItemFlag;
+        import org.bukkit.inventory.ItemStack;
+        import org.bukkit.inventory.meta.ItemMeta;
+        import org.bukkit.plugin.java.JavaPlugin;
+        import org.bukkit.util.Vector;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+        import java.util.HashMap;
+        import java.util.Map;
+        import java.util.UUID;
 
 public class ParticleEffectManager implements Listener {
 
     private final JavaPlugin plugin;
     private final Map<UUID, Integer> particleTasks = new HashMap<>();
+    private final Map<UUID, ParticleEffect> activeEffects = new HashMap<>();
 
     public ParticleEffectManager(JavaPlugin plugin) {
         this.plugin = plugin;
+        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
     public enum ParticleEffect {
-        HEART_SHAPE("Heart Shape", "REDSTONE", "kitpvp.effect.heart"),
-        WINGS("Wings", "FEATHER", "kitpvp.effect.wings"),
-        FIRE_WATER_WINGS("Fire & Water Wings", "FEATHER", "kitpvp.effect.firewaterwings"),
-        SPIRAL("Spiral", "ENDER_PEARL", "kitpvp.effect.spiral"),
-        FIRE_RING("Fire Ring", "BLAZE_POWDER", "kitpvp.effect.firering"),
-        GALAXY_ORBIT("Enchanted Orbit", "ENCHANTING_TABLE", "kitpvp.effect.enchant");
+        HEART_SHAPE("Heart Shape", Material.REDSTONE, "kitpvp.effect.heart"),
+        WINGS("Wings", Material.FEATHER, "kitpvp.effect.wings"),
+        FIRE_WATER_WINGS("Fire & Water Wings", Material.FEATHER, "kitpvp.effect.firewaterwings"),
+        SPIRAL("Spiral", Material.ENDER_PEARL, "kitpvp.effect.spiral"),
+        FIRE_RING("Fire Ring", Material.BLAZE_POWDER, "kitpvp.effect.firering"),
+        GALAXY_ORBIT("Enchanted Orbit", Material.ENCHANTING_TABLE, "kitpvp.effect.enchant");
 
         private final String displayName;
-        private final String iconMaterial;
+        private final Material iconMaterial;
         private final String permission;
 
-        ParticleEffect(String displayName, String iconMaterial, String permission) {
+        ParticleEffect(String displayName, Material iconMaterial, String permission) {
             this.displayName = displayName;
             this.iconMaterial = iconMaterial;
             this.permission = permission;
@@ -47,7 +57,7 @@ public class ParticleEffectManager implements Listener {
         }
 
         public Material getIconMaterial() {
-            return Material.valueOf(iconMaterial);
+            return iconMaterial;
         }
 
         public String getPermission() {
@@ -60,9 +70,7 @@ public class ParticleEffectManager implements Listener {
             player.sendMessage(ChatColor.RED + "You don't have permission to use this effect!");
             return;
         }
-        if (particleTasks.containsKey(player.getUniqueId())) {
-            Bukkit.getScheduler().cancelTask(particleTasks.get(player.getUniqueId()));
-        }
+        cancelCurrentTask(player);
         int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             switch (effect) {
                 case HEART_SHAPE:
@@ -86,6 +94,15 @@ public class ParticleEffectManager implements Listener {
             }
         }, 0L, 10L);
         particleTasks.put(player.getUniqueId(), taskId);
+        activeEffects.put(player.getUniqueId(), effect);
+    }
+
+    private void cancelCurrentTask(Player player) {
+        UUID playerId = player.getUniqueId();
+        if (particleTasks.containsKey(playerId)) {
+            Bukkit.getScheduler().cancelTask(particleTasks.get(playerId));
+            particleTasks.remove(playerId);
+        }
     }
 
     private void displayHeartShape(Player player) {
@@ -179,13 +196,18 @@ public class ParticleEffectManager implements Listener {
         }
     }
 
+
     public void openGUI(Player player) {
-        Inventory gui = Bukkit.createInventory(null, 9, "Select Wing Style");
+        Inventory gui = Bukkit.createInventory(null, 27, "Select Particle Style");
         for (ParticleEffect effect : ParticleEffect.values()) {
             if (player.hasPermission(effect.getPermission())) {
                 ItemStack item = new ItemStack(effect.getIconMaterial());
                 ItemMeta meta = item.getItemMeta();
                 meta.setDisplayName(effect.getDisplayName());
+                if (activeEffects.get(player.getUniqueId()) == effect) {
+                    meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
+                    meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                }
                 item.setItemMeta(meta);
                 gui.addItem(item);
             }
@@ -195,7 +217,7 @@ public class ParticleEffectManager implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getWhoClicked() instanceof Player && event.getView().getTitle().equals("Select Wing Style")) {
+        if (event.getWhoClicked() instanceof Player && event.getView().getTitle().equals("Select Particle Style")) {
             event.setCancelled(true);
             Player player = (Player) event.getWhoClicked();
             ItemStack clickedItem = event.getCurrentItem();
@@ -213,25 +235,24 @@ public class ParticleEffectManager implements Listener {
     }
 
     public void disableParticlesForPlayer(Player player) {
-        if (particleTasks.containsKey(player.getUniqueId())) {
-            Bukkit.getScheduler().cancelTask(particleTasks.get(player.getUniqueId()));
-            particleTasks.remove(player.getUniqueId());
-        }
+        cancelCurrentTask(player);
+        activeEffects.remove(player.getUniqueId());
     }
 
-    public static final Vector rotateAroundAxisX(final Vector v, final double angle) {
-        final double cos = Math.cos(angle);
-        final double sin = Math.sin(angle);
-        final double y = v.getY() * cos - v.getZ() * sin;
-        final double z = v.getY() * sin + v.getZ() * cos;
+
+    public static final Vector rotateAroundAxisX(Vector v, double angle) {
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+        double y = v.getY() * cos - v.getZ() * sin;
+        double z = v.getY() * sin + v.getZ() * cos;
         return v.setY(y).setZ(z);
     }
 
-    public static final Vector rotateAroundAxisY(final Vector v, final double angle) {
-        final double cos = Math.cos(angle);
-        final double sin = Math.sin(angle);
-        final double x = v.getX() * cos + v.getZ() * sin;
-        final double z = v.getX() * -sin + v.getZ() * cos;
+    public static final Vector rotateAroundAxisY(Vector v, double angle) {
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+        double x = v.getX() * cos + v.getZ() * sin;
+        double z = v.getX() * -sin + v.getZ() * cos;
         return v.setX(x).setZ(z);
     }
 }

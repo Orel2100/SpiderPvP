@@ -30,7 +30,7 @@ public class BerserkerAbility implements Listener {
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
         Player player = event.getPlayer();
         long remainingCooldown = checkCooldown(player, "_berserker");
-        if (hasBerserkerKit(player) && holdingKitItem(player, Material.DIAMOND_AXE, ChatColor.GREEN + "Berserker Axe"))
+        if (hasBerserkerKit(player) && holdingKitItem(player, Material.DIAMOND_AXE, ChatColor.GREEN + "Berserker Axe (Right Click)"))
             if (remainingCooldown == 0L) {
                 Vector direction = event.getRightClicked().getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
                 event.getRightClicked().setVelocity(direction.multiply(4));

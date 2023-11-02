@@ -35,7 +35,7 @@ public class BlazeAbility implements Listener {
         Player player = event.getPlayer();
         ItemStack item = player.getInventory().getItemInMainHand();
 
-        if (item.getType() == Material.BLAZE_ROD && item.getItemMeta().getDisplayName().equals(ChatColor.GOLD + "Blaze Rampage")) {
+        if (item.getType() == Material.BLAZE_ROD && item.getItemMeta().getDisplayName().equals(ChatColor.GOLD + "Blaze Rampage (Right Click)")) {
             if (!cooldowns.containsKey(player) || System.currentTimeMillis() - cooldowns.get(player) > COOLDOWN) {
                 spawnBlazes(player);
             } else {
@@ -54,11 +54,9 @@ public class BlazeAbility implements Listener {
         Location leftSide = player.getLocation().subtract(x * 3, -3, z * 3); // 3 blocks above and 3 blocks to the left
 
         Blaze blaze1 = (Blaze) player.getWorld().spawnEntity(rightSide, EntityType.BLAZE);
-        Blaze blaze2 = (Blaze) player.getWorld().spawnEntity(leftSide, EntityType.BLAZE);
 
         List<Blaze> blazes = new ArrayList<>();
         blazes.add(blaze1);
-        blazes.add(blaze2);
 
         cooldowns.put(player, System.currentTimeMillis()); // Start cooldown immediately after blazes spawn
         player.sendMessage(ChatColor.RED + "Blaze Rampage is now on cooldown!");
@@ -67,7 +65,7 @@ public class BlazeAbility implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (!blaze1.isValid() || !blaze2.isValid() || !player.isOnline() || player.isDead()) {
+                if (!blaze1.isValid() || !player.isOnline() || player.isDead()) {
                     for (Blaze blaze : blazes) {
                         blaze.remove();
                     }
@@ -83,18 +81,16 @@ public class BlazeAbility implements Listener {
 
                 blaze1.teleport(newRightSide);
                 blaze1.setCustomName(ChatColor.GREEN + player.getName() + "'s" + "Blaze");
-                blaze2.teleport(newLeftSide);
-                blaze2.setCustomName(ChatColor.GREEN + player.getName() + "'s" + "Blaze");
 
 
                 // Ensure blazes don't target the player who summoned them or each other
                 for (Blaze blaze : blazes) {
-                    if (blaze.getTarget() == player || blaze.getTarget() == blaze1 || blaze.getTarget() == blaze2) {
+                    if (blaze.getTarget() == player || blaze.getTarget() == blaze1 ) {
                         blaze.setTarget(null);
                     }
                     // Find the nearest target (excluding the player who summoned the blazes and other blazes)
                     Entity target = blaze.getNearbyEntities(20, 20, 20).stream()
-                            .filter(e -> (e instanceof Player || e instanceof Monster) && e != player && e != blaze1 && e != blaze2)
+                            .filter(e -> (e instanceof Player || e instanceof Monster) && e != player && e != blaze1 )
                             .findFirst().orElse(null);
 
                     if (target != null) {

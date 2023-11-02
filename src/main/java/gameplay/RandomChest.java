@@ -1,6 +1,6 @@
 package gameplay;
 
-import kitpvp.kitpvp.EconomyManager;
+import economy.EconomyManager;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
