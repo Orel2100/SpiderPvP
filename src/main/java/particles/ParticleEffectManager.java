@@ -36,7 +36,8 @@ public class ParticleEffectManager implements Listener {
 
     public enum ParticleEffect {
         HEART_SHAPE("Heart Shape", Material.REDSTONE, "kitpvp.effect.heart"),
-        WINGS("Wings", Material.FEATHER, "kitpvp.effect.wings"),
+        BLOODY_WINGS("Bloody Wings", Material.REDSTONE, "kitpvp.effect.bloodywings"),
+        WINGS("WINGS",Material.FEATHER, "kitpvp.effect.wings" ),
         FIRE_WATER_WINGS("Fire & Water Wings", Material.FEATHER, "kitpvp.effect.firewaterwings"),
         SPIRAL("Spiral", Material.ENDER_PEARL, "kitpvp.effect.spiral"),
         FIRE_RING("Fire Ring", Material.BLAZE_POWDER, "kitpvp.effect.firering"),
@@ -77,7 +78,7 @@ public class ParticleEffectManager implements Listener {
                     displayHeartShape(player);
                     break;
                 case WINGS:
-                    displayWings(player);
+                    openWingStyle(player);
                     break;
                 case FIRE_WATER_WINGS:
                     displayFireWaterWings(player);
@@ -129,6 +130,53 @@ public class ParticleEffectManager implements Listener {
             player.spawnParticle(Particle.REDSTONE, loc.clone().add(v2), 1, new Particle.DustOptions(Color.fromRGB(255, 0, 0), 1));
         }
     }
+
+
+    private void openWingStyle(Player player) {
+        // Create an inventory with a size of 9 slots (1 row) and a title
+        Inventory wingStyleInventory = Bukkit.createInventory(null, 9, ChatColor.GREEN + "Select Wing Style");
+
+
+        ItemStack bloodyWings = new ItemStack(Material.REDSTONE);
+        ItemMeta bloodyWingsMeta = bloodyWings.getItemMeta();
+        bloodyWingsMeta.setDisplayName("Bloody Wings");
+        bloodyWings.setItemMeta(bloodyWingsMeta);
+
+        ItemStack waterWings = new ItemStack(Material.PRISMARINE_CRYSTALS);
+        ItemMeta waterWingsMeta = waterWings.getItemMeta();
+        waterWingsMeta.setDisplayName("Fire n' Water Wings");
+        waterWings.setItemMeta(waterWingsMeta);
+
+        // Add the wing style items to the inventory
+        wingStyleInventory.addItem(bloodyWings, waterWings);
+
+        // Open the inventory for the player
+        player.openInventory(wingStyleInventory);
+    }
+
+
+    @EventHandler
+    public void onWingStyleSelect(InventoryClickEvent event) {
+        if (event.getWhoClicked() instanceof Player && event.getView().getTitle().equals(ChatColor.GREEN + "Select Wing Style")) {
+            event.setCancelled(true); // Prevent taking the item
+            Player player = (Player) event.getWhoClicked();
+            ItemStack clickedItem = event.getCurrentItem();
+            if (clickedItem != null && clickedItem.hasItemMeta()) {
+                String displayName = clickedItem.getItemMeta().getDisplayName();
+                // Check for the display name of the clicked item and set the wing style
+                if (displayName.equals("Bloody Wings")) {
+                    displayParticleEffect(player, ParticleEffect.BLOODY_WINGS);
+                    player.closeInventory();
+                    // Schedule the fire wings effect
+                } else if (displayName.equals("Fire n' Water Wings")) {
+                    // Schedule the fire and water wings effect
+                    displayParticleEffect(player, ParticleEffect.FIRE_WATER_WINGS);
+                }
+                player.closeInventory(); // Close the inventory after selection
+            }
+        }
+    }
+
 
     private void displayFireWaterWings(Player player) {
         final Location loc = player.getEyeLocation().subtract(0.0, 0.3, 0.0);

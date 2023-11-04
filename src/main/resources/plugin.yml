@@ -5,6 +5,7 @@ author: [YourName]
 main: kitpvp.kitpvp.Main
 description: A KitPvP plugin with premium kits and economy features.
 
+
 commands:
   coins:
     description: Check your coin balance.
