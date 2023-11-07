@@ -27,7 +27,7 @@ public class SoupRefillStation implements Listener {
         this.plugin = plugin;
     }
 
-
+    @EventHandler
     public void onSignChange(SignChangeEvent event) {
         if (event.getLine(1).equalsIgnoreCase("REFILL")) {
             Block block = event.getBlock();
@@ -45,55 +45,50 @@ public class SoupRefillStation implements Listener {
         Block block = event.getClickedBlock();
 
         if ((event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_BLOCK)
-                && (block.getType() == Material.OAK_SIGN || block.getType() == Material.OAK_WALL_SIGN)) {
+                && block != null && (block.getType() == Material.OAK_SIGN || block.getType() == Material.OAK_WALL_SIGN)) {
             Sign sign = (Sign) block.getState();
             if (sign.getLine(1).equalsIgnoreCase("REFILL")) {
                 Block attachedBlock = getAttachedBlock(block);
                 if (!soupAmounts.containsKey(attachedBlock)) {
                     soupAmounts.put(attachedBlock, maxSoupAmount);
-                    updateStationStatus(attachedBlock, Material.GREEN_WOOL);
                 }
 
                 if (soupAmounts.get(attachedBlock) > 0) {
-                    refillSoup(player);
-                    soupAmounts.put(attachedBlock, soupAmounts.get(attachedBlock) - 1);
+                    if (player.getInventory().firstEmpty() != -1) {
+                        refillSoup(player);
+                        int newAmount = soupAmounts.get(attachedBlock) - 1;
+                        soupAmounts.put(attachedBlock, newAmount);
+                        updateStationStatus(attachedBlock, newAmount > 0 ? Material.GREEN_WOOL : Material.RED_WOOL);
 
-                    // Update all attached signs
-                    updateStationStatus(attachedBlock, Material.GREEN_WOOL);
-
-                    if (soupAmounts.get(attachedBlock) == 0) {
-                        updateStationStatus(attachedBlock, Material.RED_WOOL);
-                        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                            soupAmounts.put(attachedBlock, maxSoupAmount);
-                            updateStationStatus(attachedBlock, Material.GREEN_WOOL);
-                        }, 200L);
+                        if (newAmount == 0) {
+                            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                                soupAmounts.put(attachedBlock, maxSoupAmount);
+                                updateStationStatus(attachedBlock, Material.GREEN_WOOL);
+                            }, 200L);
+                        }
+                    } else {
+                        player.sendMessage(ChatColor.GREEN + "FULL!");
                     }
-                    player.sendMessage("Soup refilled!");
                 } else {
-                    player.sendMessage("This station is empty! Wait for it to refill.");
+                    player.sendMessage(ChatColor.RED + "This station is empty! Wait for it to refill.");
                 }
             }
         }
     }
 
-
-
     private void refillSoup(Player player) {
         ItemStack soup = new ItemStack(Material.MUSHROOM_STEW);
         player.getInventory().addItem(soup);
+        player.sendMessage(ChatColor.GREEN + "Soup refilled!");
     }
 
     private Block getAttachedBlock(Block signBlock) {
-        org.bukkit.block.data.type.WallSign wallSignData = null;
         if (signBlock.getBlockData() instanceof org.bukkit.block.data.type.WallSign) {
-            wallSignData = (org.bukkit.block.data.type.WallSign) signBlock.getBlockData();
-        }
-        if (wallSignData != null) {
+            org.bukkit.block.data.type.WallSign wallSignData = (org.bukkit.block.data.type.WallSign) signBlock.getBlockData();
             return signBlock.getRelative(wallSignData.getFacing().getOppositeFace());
         }
         return null;
     }
-
 
     private void updateStationStatus(Block block, Material material) {
         // Update all signs attached to the block
@@ -102,16 +97,14 @@ public class SoupRefillStation implements Listener {
             if (relative.getType() == Material.OAK_SIGN || relative.getType() == Material.OAK_WALL_SIGN) {
                 Sign sign = (Sign) relative.getState();
                 if (sign.getLine(1).equalsIgnoreCase("REFILL")) {
-                    // Update the sign text with green color
+                    // Update the sign text with the current soup amount
                     sign.setLine(2, ChatColor.GREEN + "Soup: " + soupAmounts.get(block));
-                    sign.update(); // This is important to apply the changes to the sign
+                    sign.update(); // Apply the changes to the sign
                 }
             }
         }
 
-        // Directly update the block type to indicate the station status
+        // Update the block material to indicate the station's status
         block.setType(material);
     }
-
-
 }

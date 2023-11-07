@@ -1,0 +1,96 @@
+kits:
+  warrior:
+    helmet:
+      material: IRON_HELMET
+      name: '&bWarrior Helmet'
+      enchantments:
+        PROTECTION_ENVIRONMENTAL: 2
+    chestplate:
+      material: IRON_CHESTPLATE
+      name: '&bWarrior Chestplate'
+      enchantments:
+        PROTECTION_ENVIRONMENTAL: 2
+    leggings:
+      material: IRON_LEGGINGS
+      name: '&bWarrior Leggings'
+      enchantments:
+        PROTECTION_ENVIRONMENTAL: 2
+    boots:
+      material: IRON_BOOTS
+      name: '&bWarrior Boots'
+      enchantments:
+        PROTECTION_ENVIRONMENTAL: 2
+    items:
+      - material: IRON_SWORD
+        name: '&bWarrior Sword'
+        amount: 1
+        enchantments:
+          DAMAGE_ALL: 3
+          KNOCKBACK: 1
+      - material: COOKED_BEEF
+        name: '&bWarrior Steak'
+        amount: 16
+  archer:
+    helmet:
+      material: LEATHER_HELMET
+      name: '&aArcher Cap'
+      enchantments:
+        PROTECTION_PROJECTILE: 2
+    chestplate:
+      material: LEATHER_CHESTPLATE
+      name: '&aArcher Tunic'
+      enchantments:
+        PROTECTION_PROJECTILE: 2
+    leggings:
+      material: LEATHER_LEGGINGS
+      name: '&aArcher Pants'
+      enchantments:
+        PROTECTION_PROJECTILE: 2
+    boots:
+      material: LEATHER_BOOTS
+      name: '&aArcher Boots'
+      enchantments:
+        PROTECTION_PROJECTILE: 2
+    items:
+      - material: BOW
+        name: '&aArcher Bow'
+        amount: 1
+        enchantments:
+          ARROW_INFINITE: 1
+          ARROW_DAMAGE: 3
+      - material: ARROW
+        amount: 1
+      - material: COOKED_BEEF
+        name: '&aArcher Steak'
+        amount: 16
+  berserker:
+    helmet:
+      material: DIAMOND_HELMET
+      name: '&cBerserker Helmet'
+      enchantments:
+        PROTECTION_ENVIRONMENTAL: 3
+    chestplate:
+      material: DIAMOND_CHESTPLATE
+      name: '&cBerserker Chestplate'
+      enchantments:
+        PROTECTION_ENVIRONMENTAL: 3
+    leggings:
+      material: DIAMOND_LEGGINGS
+      name: '&cBerserker Leggings'
+      enchantments:
+        PROTECTION_ENVIRONMENTAL: 3
+    boots:
+      material: DIAMOND_BOOTS
+      name: '&cBerserker Boots'
+      enchantments:
+        PROTECTION_ENVIRONMENTAL: 3
+    items:
+      - material: DIAMOND_AXE
+        name: '&cBerserker Axe'
+        amount: 1
+        enchantments:
+          DAMAGE_ALL: 5
+          KNOCKBACK: 2
+      - material: GOLDEN_APPLE
+        name: '&cBerserker Apple'
+        amount: 2

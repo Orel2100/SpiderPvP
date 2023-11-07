@@ -35,6 +35,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import particles.ParticleEffectManager;
 import particles.ParticleGUINPC;
 import particles.Particlecommand;
+import souprefillstation.RefillStationWizard;
 import souprefillstation.SoupRefillStation;
 
 
@@ -109,7 +110,7 @@ public class Main extends JavaPlugin implements Listener {
         // Initialize other managers and handlers
         economyManager = new EconomyManager(this);
         premiumKitManager = new PremiumKitManager(economyManager, this);
-        kitManager = new KitManager(premiumKitManager);
+        kitManager = new KitManager(premiumKitManager, this.getDataFolder());
         premiumKitShop = new PremiumKitShop(economyManager, premiumKitManager);
         NPCEvents = new NPCEvents(kitManager, premiumKitShop);
         scoreboardManager = new ScoreboardManager(this);
@@ -143,7 +144,14 @@ public class Main extends JavaPlugin implements Listener {
         this.getCommand("setarenaspawn").setExecutor(new SetArenaSpawnCommand(this));
         this.getCommand("arena").setExecutor(new ArenaCommand(this));
 
-        //kit
+        //kits saving
+        saveDefaultKitsConfig();
+
+
+        //Refill Station
+        RefillStationWizard refillStationWizard = new RefillStationWizard(this);
+        getCommand("giverefillstick").setExecutor(refillStationWizard);
+        getServer().getPluginManager().registerEvents(refillStationWizard, this);
 
         // Register abilities
         registerEventsAbilities();
@@ -157,6 +165,14 @@ public class Main extends JavaPlugin implements Listener {
                 scoreboardManager.updateScoreboard(player);
             }
         }, 0L, 20L);
+    }
+
+
+    private void saveDefaultKitsConfig() {
+        File kitsFile = new File(getDataFolder(), "Regularkits.yml");
+        if (!kitsFile.exists()) {
+            saveResource("Regularkits.yml", false);
+        }
     }
 
 
