@@ -1,0 +1,11 @@
+# Messages for the moderation system
+ban_message:
+  - "&cYou have been banned from this server."
+  - "&cReason: &f{reason}"
+  - "&cExpires in: &f{time_remaining}"
+  - "&7Banned by: &f{staff}"
+mute_message: "&cYou are muted. Expires in: &f{time_remaining}"
+no_permission: "&cYou don't have permission to use this command."
+player_not_found: "&cPlayer not found."
+report_submitted: "&aYour report has been submitted."
+report_notification: "&e[Report] &6{reporter} &ereported &6{reported} &efor &6{reason}&e."

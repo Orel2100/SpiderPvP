@@ -16,10 +16,14 @@ import moderation.PunishmentManager;
 import moderation.ReportGUIListener;
 import moderation.PunishCommand;
 import moderation.ReportManager;
+import moderation.MessageManager;
 import moderation.PunishmentListener;
 import moderation.ReportsCommand;
+import moderation.MyReportsCommand;
 import moderation.PunishGUIListener;
 import moderation.ReportCommand;
+import moderation.UnbanCommand;
+import moderation.UnmuteCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -88,6 +92,7 @@ public class Main extends JavaPlugin implements Listener {
 
     private PunishmentManager punishmentManager;
     private ReportManager reportManager;
+    private MessageManager messageManager;
 
 
 
@@ -126,6 +131,7 @@ public class Main extends JavaPlugin implements Listener {
         scoreboardManager = new ScoreboardManager(this);
         punishmentManager = new PunishmentManager(this);
         reportManager = new ReportManager(this);
+        messageManager = new MessageManager(this);
 
         // Register events
         Bukkit.getPluginManager().registerEvents(this, this);
@@ -172,6 +178,9 @@ public class Main extends JavaPlugin implements Listener {
         getCommand("report").setExecutor(new ReportCommand(this));
         getCommand("reports").setExecutor(new ReportsCommand(this));
         getCommand("punish").setExecutor(new PunishCommand(this));
+        getCommand("myreports").setExecutor(new MyReportsCommand(this));
+        getCommand("unban").setExecutor(new UnbanCommand(this));
+        getCommand("unmute").setExecutor(new UnmuteCommand(this));
 
         // Register abilities
         registerEventsAbilities();
@@ -227,6 +236,10 @@ public class Main extends JavaPlugin implements Listener {
 
     public ReportManager getReportManager() {
         return reportManager;
+    }
+
+    public MessageManager getMessageManager() {
+        return messageManager;
     }
 
     @EventHandler

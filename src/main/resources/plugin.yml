@@ -61,6 +61,18 @@ commands:
     description: Punish a player.
     usage: /<command> <player>
     permission: kitpvp.punish
+  myreports:
+    description: View your submitted reports.
+    usage: /<command>
+    permission: kitpvp.myreports
+  unban:
+    description: Unban a player.
+    usage: /<command> <player>
+    permission: kitpvp.unban
+  unmute:
+    description: Unmute a player.
+    usage: /<command> <player>
+    permission: kitpvp.unmute
 permissions:
   kitpvp.addcoins:
     description: Allows adding coins to players.
@@ -91,6 +103,15 @@ permissions:
     default: op
   kitpvp.punish.warn:
     description: Allows staff to warn players.
+    default: op
+  kitpvp.myreports:
+    description: Allows players to view their submitted reports.
+    default: true
+  kitpvp.unban:
+    description: Allows staff to unban players.
+    default: op
+  kitpvp.unmute:
+    description: Allows staff to unmute players.
     default: op
 
 

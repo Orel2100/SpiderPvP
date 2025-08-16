@@ -7,6 +7,10 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import kitpvp.kitpvp.Main;
 import org.bukkit.configuration.ConfigurationSection;
+import utils.TimeUtil;
+import java.util.List;
+import java.util.UUID;
+import org.bukkit.Bukkit;
 
 public class PunishmentListener implements Listener {
 
@@ -32,8 +36,16 @@ public class PunishmentListener implements Listener {
                 long expires = punishment.getLong("expires");
                 if (expires == -1 || expires > System.currentTimeMillis()) {
                     String reason = punishment.getString("reason");
-                    event.disallow(PlayerLoginEvent.Result.KICK_BANNED, ChatColor.RED + "You are banned!\n" +
-                                                                         ChatColor.WHITE + "Reason: " + reason);
+                    String staffName = Bukkit.getOfflinePlayer(UUID.fromString(punishment.getString("staff"))).getName();
+                    long remaining = expires == -1 ? -1 : expires - System.currentTimeMillis();
+                    String timeRemaining = TimeUtil.formatTime(remaining);
+
+                    List<String> banMessage = plugin.getMessageManager().getMessageList("ban_message");
+                    banMessage.replaceAll(s -> s.replace("{reason}", reason)
+                                                 .replace("{staff}", staffName)
+                                                 .replace("{time_remaining}", timeRemaining));
+
+                    event.disallow(PlayerLoginEvent.Result.KICK_BANNED, String.join("\n", banMessage));
                 }
             }
         }
@@ -55,7 +67,11 @@ public class PunishmentListener implements Listener {
                 long expires = punishment.getLong("expires");
                 if (expires == -1 || expires > System.currentTimeMillis()) {
                     event.setCancelled(true);
-                    event.getPlayer().sendMessage(ChatColor.RED + "You are muted.");
+                    long remaining = expires == -1 ? -1 : expires - System.currentTimeMillis();
+                    String timeRemaining = TimeUtil.formatTime(remaining);
+                    String muteMessage = plugin.getMessageManager().getMessage("mute_message")
+                                               .replace("{time_remaining}", timeRemaining);
+                    event.getPlayer().sendMessage(muteMessage);
                 }
             }
         }

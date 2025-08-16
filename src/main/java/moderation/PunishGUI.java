@@ -23,10 +23,10 @@ public class PunishGUI {
         Inventory gui = Bukkit.createInventory(null, 27, "Punish " + target.getName());
 
         // Add punishment types
-        gui.setItem(10, createGuiItem(Material.PAPER, "Warn"));
-        gui.setItem(12, createGuiItem(Material.IRON_SWORD, "Kick"));
-        gui.setItem(14, createGuiItem(Material.BOOK, "Mute"));
-        gui.setItem(16, createGuiItem(Material.BEDROCK, "Ban"));
+        gui.setItem(10, createGuiItem(Material.PAPER, "Warn", "Warn a player for a minor offense."));
+        gui.setItem(12, createGuiItem(Material.IRON_SWORD, "Kick", "Kick a player from the server."));
+        gui.setItem(14, createGuiItem(Material.BOOK, "Mute", "Mute a player, preventing them from chatting."));
+        gui.setItem(16, createGuiItem(Material.BEDROCK, "Ban", "Ban a player from the server."));
 
         staff.openInventory(gui);
     }

@@ -23,10 +23,10 @@ public class ReportGUI {
         Inventory gui = Bukkit.createInventory(null, 27, "Report " + target.getName());
 
         // Add report reasons
-        gui.setItem(10, createGuiItem(Material.DIAMOND_SWORD, "Cheating/Hacking"));
-        gui.setItem(12, createGuiItem(Material.PAPER, "Spamming"));
-        gui.setItem(14, createGuiItem(Material.IRON_SWORD, "Harassment"));
-        gui.setItem(16, createGuiItem(Material.BOOK, "Other"));
+        gui.setItem(10, createGuiItem(Material.DIAMOND_SWORD, "Cheating/Hacking", "Using unfair advantages."));
+        gui.setItem(12, createGuiItem(Material.PAPER, "Spamming", "Sending repetitive messages."));
+        gui.setItem(14, createGuiItem(Material.IRON_SWORD, "Harassment", "Insulting or threatening others."));
+        gui.setItem(16, createGuiItem(Material.BOOK, "Other", "For reasons not listed here."));
 
         // Add confirm and cancel buttons
         gui.setItem(22, createGuiItem(Material.GREEN_WOOL, ChatColor.GREEN + "Confirm Report"));
