@@ -49,12 +49,48 @@ commands:
   giverefillstick:
     description: REFILL STICK
     aliases: [refillstick]
+  report:
+    description: Report a player for breaking the rules.
+    usage: /<command> <player>
+    permission: kitpvp.report
+  reports:
+    description: View and manage player reports.
+    usage: /<command>
+    permission: kitpvp.reports.view
+  punish:
+    description: Punish a player.
+    usage: /<command> <player>
+    permission: kitpvp.punish
 permissions:
   kitpvp.addcoins:
     description: Allows adding coins to players.
     default: op
   kitpvp.removecoins:
     description: Allows removing coins from players.
+    default: op
+  kitpvp.report:
+    description: Allows players to report other players.
+    default: true
+  kitpvp.reports.view:
+    description: Allows staff to view and manage reports.
+    default: op
+  kitpvp.reports.notify:
+    description: Notifies staff about new reports.
+    default: op
+  kitpvp.punish:
+    description: Allows staff to punish players.
+    default: op
+  kitpvp.punish.ban:
+    description: Allows staff to ban players.
+    default: op
+  kitpvp.punish.mute:
+    description: Allows staff to mute players.
+    default: op
+  kitpvp.punish.kick:
+    description: Allows staff to kick players.
+    default: op
+  kitpvp.punish.warn:
+    description: Allows staff to warn players.
     default: op
 
 

@@ -12,6 +12,14 @@ import economy.EconomyManager;
 import gameplay.ArenaCommand;
 import gameplay.RandomChest;
 import gameplay.SetArenaSpawnCommand;
+import moderation.PunishmentManager;
+import moderation.ReportGUIListener;
+import moderation.PunishCommand;
+import moderation.ReportManager;
+import moderation.PunishmentListener;
+import moderation.ReportsCommand;
+import moderation.PunishGUIListener;
+import moderation.ReportCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -26,11 +34,13 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 import particles.ParticleEffectManager;
 import particles.ParticleGUINPC;
@@ -61,7 +71,7 @@ public class Main extends JavaPlugin implements Listener {
 
     private Map<UUID, Integer> coinMap = new HashMap<>();
 
-    private final HashSet<UUID> playersInCombat = new HashSet<>();
+    private final Map<UUID, BukkitTask> combatTasks = new HashMap<>();
 
     private ScoreboardManager scoreboardManager;
 
@@ -76,8 +86,8 @@ public class Main extends JavaPlugin implements Listener {
     private ParticleGUINPC particleGUINPC;
 
 
-
-
+    private PunishmentManager punishmentManager;
+    private ReportManager reportManager;
 
 
 
@@ -114,6 +124,8 @@ public class Main extends JavaPlugin implements Listener {
         premiumKitShop = new PremiumKitShop(economyManager, premiumKitManager);
         NPCEvents = new NPCEvents(kitManager, premiumKitShop);
         scoreboardManager = new ScoreboardManager(this);
+        punishmentManager = new PunishmentManager(this);
+        reportManager = new ReportManager(this);
 
         // Register events
         Bukkit.getPluginManager().registerEvents(this, this);
@@ -123,6 +135,9 @@ public class Main extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(premiumKitShop, this);
         Bukkit.getPluginManager().registerEvents(particleEffectManager, this);
         Bukkit.getPluginManager().registerEvents(particleGUINPC, this);
+        getServer().getPluginManager().registerEvents(new ReportGUIListener(this), this);
+        getServer().getPluginManager().registerEvents(new PunishGUIListener(this), this);
+        getServer().getPluginManager().registerEvents(new PunishmentListener(this), this);
 
         // Load kit ownership
         premiumKitManager.ensureKitOwnershipFileExists();
@@ -152,6 +167,11 @@ public class Main extends JavaPlugin implements Listener {
         RefillStationWizard refillStationWizard = new RefillStationWizard(this);
         getCommand("giverefillstick").setExecutor(refillStationWizard);
         getServer().getPluginManager().registerEvents(refillStationWizard, this);
+
+        // Moderation commands
+        getCommand("report").setExecutor(new ReportCommand(this));
+        getCommand("reports").setExecutor(new ReportsCommand(this));
+        getCommand("punish").setExecutor(new PunishCommand(this));
 
         // Register abilities
         registerEventsAbilities();
@@ -201,6 +221,14 @@ public class Main extends JavaPlugin implements Listener {
         return instance;
     }
 
+    public PunishmentManager getPunishmentManager() {
+        return punishmentManager;
+    }
+
+    public ReportManager getReportManager() {
+        return reportManager;
+    }
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
@@ -215,7 +243,45 @@ public class Main extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
+
+        // Combat tag removal
+        if (combatTasks.containsKey(player.getUniqueId())) {
+            combatTasks.get(player.getUniqueId()).cancel();
+            combatTasks.remove(player.getUniqueId());
+        }
+        Player killer = player.getKiller();
+        if (killer != null) {
+            if (combatTasks.containsKey(killer.getUniqueId())) {
+                combatTasks.get(killer.getUniqueId()).cancel();
+                combatTasks.remove(killer.getUniqueId());
+                killer.sendMessage(ChatColor.GREEN + "You are no longer in combat.");
+            }
+            // Death message
+            String[] deathMessages = {
+                    ChatColor.GREEN + player.getName() + ChatColor.GRAY + " met " + ChatColor.GREEN + killer.getName() + ChatColor.GRAY + "'s wrath.",
+                    ChatColor.GREEN + player.getName() + ChatColor.GRAY + " was outplayed by " + ChatColor.GREEN + killer.getName() + ChatColor.GRAY + ".",
+                    ChatColor.GREEN + killer.getName() + ChatColor.GRAY + " silenced " + ChatColor.GREEN + player.getName() + ChatColor.GRAY + ".",
+                    ChatColor.GREEN + player.getName() + ChatColor.GRAY + " fell to " + ChatColor.GREEN + killer.getName() + ChatColor.GRAY + "'s cunning.",
+                    ChatColor.GREEN + killer.getName() + ChatColor.GRAY + " claimed " + ChatColor.GREEN + player.getName() + ChatColor.GRAY + "'s fate."
+            };
+            String randomDeathMessage = deathMessages[new Random().nextInt(deathMessages.length)];
+            event.setDeathMessage(randomDeathMessage);
+        } else {
+            event.setDeathMessage(null);
+        }
+
+
+
         Bukkit.getScheduler().scheduleSyncDelayedTask((Plugin)this, () -> player.spigot().respawn(), 1L);
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        if (combatTasks.containsKey(player.getUniqueId())) {
+            combatTasks.get(player.getUniqueId()).cancel();
+            combatTasks.remove(player.getUniqueId());
+        }
     }
 
     @EventHandler
@@ -266,33 +332,6 @@ public class Main extends JavaPlugin implements Listener {
 
 
     @EventHandler
-    public void onPlayerDeathMSG(PlayerDeathEvent event) {
-        Player deceased = event.getEntity();
-        Player killer = deceased.getKiller();
-
-        // If the death was caused by another player
-        if (killer != null) {
-            String[] deathMessages = {
-                    ChatColor.GREEN + deceased.getName() + ChatColor.GRAY + " met " + ChatColor.GREEN + killer.getName() + ChatColor.GRAY + "'s wrath.",
-                    ChatColor.GREEN + deceased.getName() + ChatColor.GRAY + " was outplayed by " + ChatColor.GREEN + killer.getName() + ChatColor.GRAY + ".",
-                    ChatColor.GREEN + killer.getName() + ChatColor.GRAY + " silenced " + ChatColor.GREEN + deceased.getName() + ChatColor.GRAY + ".",
-                    ChatColor.GREEN + deceased.getName() + ChatColor.GRAY + " fell to " + ChatColor.GREEN + killer.getName() + ChatColor.GRAY + "'s cunning.",
-                    ChatColor.GREEN + killer.getName() + ChatColor.GRAY + " claimed " + ChatColor.GREEN + deceased.getName() + ChatColor.GRAY + "'s fate."
-            };
-
-            // Randomly select one of the death messages
-            String randomDeathMessage = deathMessages[new Random().nextInt(deathMessages.length)];
-            event.setDeathMessage(randomDeathMessage);
-        } else {
-            // Ignore all other death messages
-            event.setDeathMessage(null);
-        }
-    }
-
-
-
-
-    @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         this.kitManager.handleKitSelection(event);
     }
@@ -336,7 +375,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
         if (cmd.getName().equalsIgnoreCase("spawn")) {
-            if (this.playersInCombat.contains(player.getUniqueId())) {
+            if (this.combatTasks.containsKey(player.getUniqueId())) {
                 player.sendMessage(ChatColor.RED + "You can't use this command while in combat!");
                 return true;
             }
@@ -354,22 +393,34 @@ public class Main extends JavaPlugin implements Listener {
         return false;
     }
 
+    private void setInCombat(Player player) {
+        if (combatTasks.containsKey(player.getUniqueId())) {
+            combatTasks.get(player.getUniqueId()).cancel();
+        } else {
+            player.sendMessage(ChatColor.YELLOW + "You are now in combat!");
+        }
+
+        BukkitTask task = Bukkit.getScheduler().runTaskLater(this, () -> {
+            combatTasks.remove(player.getUniqueId());
+            player.sendMessage(ChatColor.GREEN + "You are no longer in combat.");
+        }, 300L); // 15 seconds
+
+        combatTasks.put(player.getUniqueId(), task);
+    }
+
     @EventHandler
     public void onPlayerCombat(EntityDamageByEntityEvent event) {
         if (event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
             Player damager = (Player)event.getDamager();
             Player damaged = (Player)event.getEntity();
-            this.playersInCombat.add(damager.getUniqueId());
-            this.playersInCombat.add(damaged.getUniqueId());
+
+            setInCombat(damager);
+            setInCombat(damaged);
+
             if (event.getFinalDamage() >= damaged.getHealth()) {
                 this.scoreboardManager.addKill(damager);
                 this.scoreboardManager.addDeath(damaged);
             }
-            Bukkit.getScheduler().runTaskLater(this, () -> {
-                this.playersInCombat.remove(damager.getUniqueId());
-                this.playersInCombat.remove(damaged.getUniqueId());
-            }, 300L);
-
         }
     }
 
