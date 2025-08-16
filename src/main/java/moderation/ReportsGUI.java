@@ -36,6 +36,7 @@ public class ReportsGUI {
                 List<String> lore = new ArrayList<>();
                 lore.add("Reported by: " + Bukkit.getOfflinePlayer(UUID.fromString(reportManager.getConfig().getString(reportId + ".reporter"))).getName());
                 lore.add("Reason: " + reportManager.getConfig().getString(reportId + ".reason"));
+                lore.add("Report ID: " + reportId);
                 meta.setLore(lore);
                 skull.setItemMeta(meta);
                 gui.addItem(skull);

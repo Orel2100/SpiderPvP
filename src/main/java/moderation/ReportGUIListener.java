@@ -6,6 +6,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import kitpvp.kitpvp.Main;
+import moderation.PunishGUI;
+import moderation.PunishmentContext;
+import moderation.PunishmentGUIManager;
+import moderation.PunishmentContext;
+import moderation.PunishmentGUIManager;
+import moderation.ReportManagementGUI;
 import org.bukkit.inventory.ItemStack;
 
 public class ReportGUIListener implements Listener {
@@ -78,7 +84,52 @@ public class ReportGUIListener implements Listener {
 
             if (clickedItem != null && clickedItem.getType().toString().equals("PLAYER_HEAD")) {
                 String reportedName = clickedItem.getItemMeta().getDisplayName();
-                staff.sendMessage(ChatColor.GREEN + "You have selected the report for " + reportedName + ".");
+                Player target = plugin.getServer().getPlayer(reportedName);
+                if (target == null) {
+                    staff.sendMessage(ChatColor.RED + "The player you are trying to manage is no longer online.");
+                    staff.closeInventory();
+                    return;
+                }
+
+                String reportIdLine = clickedItem.getItemMeta().getLore().stream().filter(line -> line.contains("Report ID:")).findFirst().orElse(null);
+                if (reportIdLine == null) return;
+                String reportId = ChatColor.stripColor(reportIdLine.substring(reportIdLine.indexOf(":") + 2));
+
+                new ReportManagementGUI(staff, target, reportId).open();
+            }
+        } else if (event.getView().getTitle().startsWith("Manage Report - ")) {
+            event.setCancelled(true);
+            Player staff = (Player) event.getWhoClicked();
+            String title = event.getView().getTitle();
+            String[] parts = title.split(" - ");
+            String reportId = parts[1];
+            String targetName = parts[2];
+            Player target = plugin.getServer().getPlayer(targetName);
+
+            if (target == null) {
+                staff.sendMessage(ChatColor.RED + "The player you were managing is no longer online.");
+                staff.closeInventory();
+                return;
+            }
+
+            if(event.getCurrentItem() == null) return;
+            if(!event.getCurrentItem().hasItemMeta()) return;
+            String itemName = ChatColor.stripColor(event.getCurrentItem().getItemMeta().getDisplayName());
+
+            if (itemName.equalsIgnoreCase("Teleport to Player")) {
+                staff.teleport(target);
+                staff.sendMessage(ChatColor.GREEN + "Teleported to " + target.getName());
+                staff.closeInventory();
+            } else if (itemName.equalsIgnoreCase("Resolve Report")) {
+                plugin.getReportManager().getConfig().set(reportId, null);
+                plugin.getReportManager().saveConfig();
+                staff.sendMessage(ChatColor.GREEN + "Report has been resolved.");
+                staff.closeInventory();
+            } else if (itemName.equalsIgnoreCase("Punish Player")) {
+                String reason = plugin.getReportManager().getConfig().getString(reportId + ".reason");
+                PunishmentGUIManager.getInstance().setContext(staff.getUniqueId(), new PunishmentContext(target, reason));
+                new PunishGUI(staff, target).open();
+            } else if (itemName.equalsIgnoreCase("Close")) {
                 staff.closeInventory();
             }
         }
