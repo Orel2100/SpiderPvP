@@ -20,6 +20,9 @@ import org.bukkit.entity.Player;
 import java.util.HashSet;
 import java.util.Set;
 import org.bukkit.event.player.PlayerMoveEvent;
+import kitpvp.kitpvp.Main;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.Material;
 
 public class DuelManager implements Listener {
 
@@ -39,7 +42,7 @@ public class DuelManager implements Listener {
         return instance;
     }
 
-    public void startDuel(Player player1, Player player2) {
+    public void startDuel(Player player1, Player player2, String kitName) {
         // Find an available arena
         ArenaManager arenaManager = plugin.getArenaManager();
         ConfigurationSection arenas = arenaManager.getConfig().getConfigurationSection("arenas");
@@ -83,10 +86,9 @@ public class DuelManager implements Listener {
         player1.getInventory().clear();
         player2.getInventory().clear();
 
-        // For now, let's assume players will use the kit selector.
-        // I will add a proper kit selection GUI for duels later.
-        plugin.getKitManager().giveKitSelectorToSlot(player1, 0);
-        plugin.getKitManager().giveKitSelectorToSlot(player2, 0);
+        // Give kits
+        plugin.getKitManager().giveKit(player1, kitName);
+        plugin.getKitManager().giveKit(player2, kitName);
 
         // Give blocks
         ItemStack blocks = new ItemStack(Material.WHITE_WOOL, 64);

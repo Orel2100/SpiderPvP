@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -93,7 +94,7 @@ public class KitManager {
         inventory.setItem(slot, item);
     }
 
-    private void giveKit(Player player, String kitName) {
+    public void giveKit(Player player, String kitName) {
         player.getInventory().clear();
         String path = "kits." + kitName;
         if (!kitsConfig.contains(path)) {
@@ -193,5 +194,17 @@ public class KitManager {
                 player.getInventory().setItem(i, new ItemStack(Material.MUSHROOM_STEW));
             }
         }
+    }
+
+    public Map<String, ItemStack> getKits() {
+        Map<String, ItemStack> kits = new HashMap<>();
+        ConfigurationSection kitsSection = kitsConfig.getConfigurationSection("kits");
+        if (kitsSection != null) {
+            for (String kitName : kitsSection.getKeys(false)) {
+                ItemStack displayItem = createItemStackFromConfig("kits." + kitName + ".items.0");
+                kits.put(kitName, displayItem);
+            }
+        }
+        return kits;
     }
 }

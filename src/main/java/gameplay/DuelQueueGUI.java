@@ -9,6 +9,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import kitpvp.kitpvp.Main;
 import org.bukkit.configuration.ConfigurationSection;
 import java.util.Arrays;
+import org.bukkit.ChatColor;
 
 public class DuelQueueGUI {
 
@@ -22,6 +23,13 @@ public class DuelQueueGUI {
 
     public void open() {
         Inventory gui = Bukkit.createInventory(null, 54, "1v1 Arenas");
+
+        for (int i = 0; i < 9; i++) {
+            gui.setItem(i, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
+        }
+        for (int i = 45; i < 54; i++) {
+            gui.setItem(i, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
+        }
 
         ArenaManager arenaManager = plugin.getArenaManager();
         ConfigurationSection arenas = arenaManager.getConfig().getConfigurationSection("arenas");
@@ -53,7 +61,12 @@ public class DuelQueueGUI {
                     playerCount = 2;
                 }
 
-                meta.setLore(Arrays.asList("Status: " + status.toString(), "Players: " + playerCount + "/2"));
+                meta.setLore(Arrays.asList(
+                    ChatColor.GRAY + "Status: " + status.toString(),
+                    ChatColor.GRAY + "Players: " + playerCount + "/2",
+                    "",
+                    ChatColor.GREEN + "Click to join the queue!"
+                ));
                 arenaItem.setItemMeta(meta);
                 gui.addItem(arenaItem);
             }

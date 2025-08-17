@@ -5,6 +5,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import kitpvp.kitpvp.Main;
+import gameplay.KitSelectionGUI;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.ChatColor;
 
 public class DuelGUIListener implements Listener {
 
@@ -19,7 +22,15 @@ public class DuelGUIListener implements Listener {
         if (event.getView().getTitle().equals("1v1 Arenas")) {
             event.setCancelled(true);
             Player player = (Player) event.getWhoClicked();
-            plugin.getDuelQueueManager().addPlayer(player);
+            new KitSelectionGUI(plugin, player).open();
+        } else if (event.getView().getTitle().equals("Select a Kit")) {
+            event.setCancelled(true);
+            Player player = (Player) event.getWhoClicked();
+            ItemStack clickedItem = event.getCurrentItem();
+            if (clickedItem == null || !clickedItem.hasItemMeta()) return;
+
+            String kitName = ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName());
+            plugin.getDuelQueueManager().addPlayer(player, kitName);
             player.closeInventory();
         }
     }
