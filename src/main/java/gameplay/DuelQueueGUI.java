@@ -8,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import kitpvp.kitpvp.Main;
 import org.bukkit.configuration.ConfigurationSection;
+import java.util.Arrays;
 
 public class DuelQueueGUI {
 
@@ -26,11 +27,33 @@ public class DuelQueueGUI {
         ConfigurationSection arenas = arenaManager.getConfig().getConfigurationSection("arenas");
         if (arenas != null) {
             for (String arenaName : arenas.getKeys(false)) {
-                // For now, all arenas are shown as available.
-                // I will add a status system later.
-                ItemStack arenaItem = new ItemStack(Material.GREEN_WOOL);
+                ArenaStatus status = plugin.getArenaManager().getArenaStatus(arenaName);
+                Material material;
+                switch (status) {
+                    case COUNTDOWN:
+                        material = Material.ORANGE_WOOL;
+                        break;
+                    case FIGHTING:
+                        material = Material.RED_WOOL;
+                        break;
+                    case REGENERATING:
+                        material = Material.PINK_WOOL;
+                        break;
+                    default:
+                        material = Material.GREEN_WOOL;
+                        break;
+                }
+                ItemStack arenaItem = new ItemStack(material);
                 ItemMeta meta = arenaItem.getItemMeta();
                 meta.setDisplayName(arenaName);
+
+                int playerCount = 0;
+                Duel duel = DuelManager.getInstance(plugin).getDuelByArenaName(arenaName);
+                if (duel != null) {
+                    playerCount = 2;
+                }
+
+                meta.setLore(Arrays.asList("Status: " + status.toString(), "Players: " + playerCount + "/2"));
                 arenaItem.setItemMeta(meta);
                 gui.addItem(arenaItem);
             }

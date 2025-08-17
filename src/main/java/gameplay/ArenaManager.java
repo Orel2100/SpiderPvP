@@ -14,7 +14,7 @@ public class ArenaManager {
     private final JavaPlugin plugin;
     private File arenaFile;
     private FileConfiguration arenaConfig;
-    private final Map<String, String> arenaStatus = new HashMap<>();
+    private final Map<String, ArenaStatus> arenaStatus = new HashMap<>();
 
     public ArenaManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -50,11 +50,11 @@ public class ArenaManager {
         arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
     }
 
-    public void setArenaStatus(String arenaName, String status) {
+    public void setArenaStatus(String arenaName, ArenaStatus status) {
         arenaStatus.put(arenaName, status);
     }
 
-    public String getArenaStatus(String arenaName) {
-        return arenaStatus.getOrDefault(arenaName, "available");
+    public ArenaStatus getArenaStatus(String arenaName) {
+        return arenaStatus.getOrDefault(arenaName, ArenaStatus.AVAILABLE);
     }
 }

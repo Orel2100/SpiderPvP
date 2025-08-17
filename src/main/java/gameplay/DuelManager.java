@@ -14,12 +14,19 @@ import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.ChatColor;
+import org.bukkit.scheduler.BukkitRunnable;
+import kitpvp.kitpvp.Main;
+import org.bukkit.entity.Player;
+import java.util.HashSet;
+import java.util.Set;
+import org.bukkit.event.player.PlayerMoveEvent;
 
 public class DuelManager implements Listener {
 
     private static DuelManager instance;
     private final Main plugin;
     private final Map<UUID, Duel> activeDuels = new HashMap<>();
+    private final Set<UUID> frozenPlayers = new HashSet<>();
 
     private DuelManager(Main plugin) {
         this.plugin = plugin;
@@ -44,9 +51,10 @@ public class DuelManager implements Listener {
 
         String availableArena = null;
         for (String arenaName : arenas.getKeys(false)) {
-            // For now, just take the first arena. I'll add a status system later.
-            availableArena = arenaName;
-            break;
+            if (plugin.getArenaManager().getArenaStatus(arenaName) == ArenaStatus.AVAILABLE) {
+                availableArena = arenaName;
+                break;
+            }
         }
 
         if (availableArena == null) {
@@ -89,11 +97,32 @@ public class DuelManager implements Listener {
         activeDuels.put(player1.getUniqueId(), duel);
         activeDuels.put(player2.getUniqueId(), duel);
 
-        plugin.getArenaManager().setArenaStatus(availableArena, "in-use");
+        plugin.getArenaManager().setArenaStatus(availableArena, ArenaStatus.COUNTDOWN);
         ArenaRegenManager.getInstance().startTracking(availableArena);
 
-        player1.sendMessage("Duel starting against " + player2.getName());
-        player2.sendMessage("Duel starting against " + player1.getName());
+        final String finalAvailableArena = availableArena;
+        frozenPlayers.add(player1.getUniqueId());
+        frozenPlayers.add(player2.getUniqueId());
+
+        new BukkitRunnable() {
+            int countdown = 5;
+
+            @Override
+            public void run() {
+                if (countdown > 0) {
+                    player1.sendMessage(ChatColor.GREEN + "Duel starting in " + countdown + "...");
+                    player2.sendMessage(ChatColor.GREEN + "Duel starting in " + countdown + "...");
+                    countdown--;
+                } else {
+                    player1.sendMessage(ChatColor.GREEN + "Duel started!");
+                    player2.sendMessage(ChatColor.GREEN + "Duel started!");
+                    plugin.getArenaManager().setArenaStatus(finalAvailableArena, ArenaStatus.FIGHTING);
+                    frozenPlayers.remove(player1.getUniqueId());
+                    frozenPlayers.remove(player2.getUniqueId());
+                    cancel();
+                }
+            }
+        }.runTaskTimer(plugin, 0, 20);
     }
 
     public Duel getDuel(Player player) {
@@ -103,8 +132,18 @@ public class DuelManager implements Listener {
     public void endDuel(Duel duel) {
         activeDuels.remove(duel.getPlayer1().getUniqueId());
         activeDuels.remove(duel.getPlayer2().getUniqueId());
-        plugin.getArenaManager().setArenaStatus(duel.getArenaName(), "available");
+        plugin.getArenaManager().setArenaStatus(duel.getArenaName(), ArenaStatus.REGENERATING);
         ArenaRegenManager.getInstance().restoreArena(duel.getArenaName());
+        plugin.getArenaManager().setArenaStatus(duel.getArenaName(), ArenaStatus.AVAILABLE);
+    }
+
+    public Duel getDuelByArenaName(String arenaName) {
+        for (Duel duel : activeDuels.values()) {
+            if (duel.getArenaName().equals(arenaName)) {
+                return duel;
+            }
+        }
+        return null;
     }
 
     @EventHandler
@@ -116,6 +155,13 @@ public class DuelManager implements Listener {
             winner.sendMessage(ChatColor.GREEN + "You won the duel against " + deceased.getName() + "!");
             deceased.sendMessage(ChatColor.RED + "You lost the duel against " + winner.getName() + ".");
             endDuel(duel);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if (frozenPlayers.contains(event.getPlayer().getUniqueId())) {
+            event.setTo(event.getFrom());
         }
     }
 }
