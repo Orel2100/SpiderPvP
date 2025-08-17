@@ -73,6 +73,14 @@ commands:
     description: Unmute a player.
     usage: /<command> <player>
     permission: kitpvp.unmute
+  duel:
+    description: Join the 1v1 duel queue.
+    usage: /<command>
+    permission: kitpvp.duel
+  arena:
+    description: Teleport to a random spawn point in the arena.
+    usage: /arena
+    permission: kitpvp.arena
 permissions:
   kitpvp.addcoins:
     description: Allows adding coins to players.
@@ -112,6 +120,18 @@ permissions:
     default: op
   kitpvp.unmute:
     description: Allows staff to unmute players.
+    default: op
+  kitpvp.duel:
+    description: Allows players to join the duel queue.
+    default: true
+  arena.setspawn:
+    description: Allows setting arena spawn points.
+    default: op
+  kitpvp.arena:
+    description: Allows teleporting to the arena.
+    default: true
+  arena.create:
+    description: Allows creating arenas.
     default: op
 
 

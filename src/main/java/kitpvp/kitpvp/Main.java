@@ -23,6 +23,14 @@ import moderation.MyReportsCommand;
 import moderation.PunishGUIListener;
 import moderation.ReportCommand;
 import moderation.UnbanCommand;
+import gameplay.ArenaManager;
+import gameplay.ArenaSetupListener;
+import gameplay.DuelCommand;
+import gameplay.ArenaBlockListener;
+import gameplay.DuelQueueManager;
+import gameplay.DuelManager;
+import gameplay.DuelGUIListener;
+import gameplay.GUIUpdater;
 import moderation.UnmuteCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -93,6 +101,8 @@ public class Main extends JavaPlugin implements Listener {
     private PunishmentManager punishmentManager;
     private ReportManager reportManager;
     private MessageManager messageManager;
+    private ArenaManager arenaManager;
+    private DuelQueueManager duelQueueManager;
 
 
 
@@ -132,6 +142,8 @@ public class Main extends JavaPlugin implements Listener {
         punishmentManager = new PunishmentManager(this);
         reportManager = new ReportManager(this);
         messageManager = new MessageManager(this);
+        arenaManager = new ArenaManager(this);
+        duelQueueManager = new DuelQueueManager(this);
 
         // Register events
         Bukkit.getPluginManager().registerEvents(this, this);
@@ -144,6 +156,10 @@ public class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new ReportGUIListener(this), this);
         getServer().getPluginManager().registerEvents(new PunishGUIListener(this), this);
         getServer().getPluginManager().registerEvents(new PunishmentListener(this), this);
+        getServer().getPluginManager().registerEvents(new ArenaSetupListener(this), this);
+        getServer().getPluginManager().registerEvents(new ArenaBlockListener(this), this);
+        getServer().getPluginManager().registerEvents(DuelManager.getInstance(this), this);
+        getServer().getPluginManager().registerEvents(new DuelGUIListener(this), this);
 
         // Load kit ownership
         premiumKitManager.ensureKitOwnershipFileExists();
@@ -181,6 +197,7 @@ public class Main extends JavaPlugin implements Listener {
         getCommand("myreports").setExecutor(new MyReportsCommand(this));
         getCommand("unban").setExecutor(new UnbanCommand(this));
         getCommand("unmute").setExecutor(new UnmuteCommand(this));
+        getCommand("duel").setExecutor(new DuelCommand(this));
 
         // Register abilities
         registerEventsAbilities();
@@ -194,6 +211,8 @@ public class Main extends JavaPlugin implements Listener {
                 scoreboardManager.updateScoreboard(player);
             }
         }, 0L, 20L);
+
+        new GUIUpdater(this).runTaskTimer(this, 0, 40);
     }
 
 
@@ -240,6 +259,18 @@ public class Main extends JavaPlugin implements Listener {
 
     public MessageManager getMessageManager() {
         return messageManager;
+    }
+
+    public ArenaManager getArenaManager() {
+        return arenaManager;
+    }
+
+    public DuelQueueManager getDuelQueueManager() {
+        return duelQueueManager;
+    }
+
+    public KitManager getKitManager() {
+        return kitManager;
     }
 
     @EventHandler

@@ -9,6 +9,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import kitpvp.kitpvp.Main;
 
 import java.io.File;
 import java.util.Random;
@@ -32,8 +33,34 @@ public class ArenaCommand implements CommandExecutor {
 
         Player player = (Player) sender;
 
+        if (args.length > 0) {
+            if (args[0].equalsIgnoreCase("create")) {
+                if (!player.hasPermission("arena.create")) {
+                    player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                    return true;
+                }
+                if (args.length != 2) {
+                    player.sendMessage(ChatColor.RED + "Usage: /arena create <name>");
+                    return true;
+                }
+                String arenaName = args[1];
+                new ArenaSetupWizard((Main) plugin, player, arenaName).start();
+                return true;
+            }
+        }
+
+        if (!player.hasPermission("kitpvp.arena")) {
+            player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            return true;
+        }
+
         File arenaFile = new File(plugin.getDataFolder(), "arenalocations.yml");
         FileConfiguration arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
+
+        if (!arenaConfig.isConfigurationSection("spawns")) {
+            player.sendMessage(ChatColor.RED + "No spawn points set for the arena.");
+            return true;
+        }
 
         Set<String> spawnKeys = arenaConfig.getConfigurationSection("spawns").getKeys(false);
         if (spawnKeys.isEmpty()) {
