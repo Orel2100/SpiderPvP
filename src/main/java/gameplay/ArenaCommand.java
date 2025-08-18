@@ -9,18 +9,21 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import kitpvp.kitpvp.Main;
-
 import java.io.File;
 import java.util.Random;
 import java.util.Set;
+import kitpvp.kitpvp.Main;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
-public class ArenaCommand implements CommandExecutor {
+public class ArenaCommand implements CommandExecutor, Listener {
 
-    private final JavaPlugin plugin;
+    private final Main plugin;
     private final Random random = new Random();
 
-    public ArenaCommand(JavaPlugin plugin) {
+    public ArenaCommand(Main plugin) {
         this.plugin = plugin;
     }
 
@@ -44,7 +47,7 @@ public class ArenaCommand implements CommandExecutor {
                     return true;
                 }
                 String arenaName = args[1];
-                new ArenaSetupWizard((Main) plugin, player, arenaName).start();
+                new ArenaSetupWizard(plugin, player, arenaName).start();
                 return true;
             }
         }
@@ -82,5 +85,34 @@ public class ArenaCommand implements CommandExecutor {
         player.sendMessage(ChatColor.GREEN + "Teleported to the arena!");
 
         return true;
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        ArenaSetupWizard wizard = ArenaSetupWizard.getWizard(player);
+        if (wizard == null) {
+            return;
+        }
+
+        ItemStack item = event.getItem();
+        if (item == null || !item.hasItemMeta()) {
+            return;
+        }
+
+        event.setCancelled(true);
+        String itemName = ChatColor.stripColor(item.getItemMeta().getDisplayName());
+
+        if (itemName.equalsIgnoreCase("Save Arena")) {
+            if (wizard.isComplete()) {
+                wizard.saveArena();
+                player.sendMessage(ChatColor.GREEN + "Arena saved!");
+            } else {
+                player.sendMessage(ChatColor.RED + "Please set all locations before saving.");
+            }
+        } else {
+            wizard.setLocation(itemName, player.getLocation());
+            player.sendMessage(ChatColor.GREEN + "Set " + itemName + " to your current location.");
+        }
     }
 }

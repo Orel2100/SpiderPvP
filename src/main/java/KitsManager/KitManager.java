@@ -107,7 +107,12 @@ public class KitManager {
             if (key.equalsIgnoreCase("items")) {
                 List<Map<?, ?>> itemList = kitSection.getMapList(key);
                 for (Map<?, ?> itemMap : itemList) {
-                    player.getInventory().addItem(createItemStackFromMap(itemMap));
+                    ItemStack itemStack = createItemStackFromMap(itemMap);
+                    if (itemMap.containsKey("slot")) {
+                        player.getInventory().setItem((Integer) itemMap.get("slot"), itemStack);
+                    } else {
+                        player.getInventory().addItem(itemStack);
+                    }
                 }
             } else {
                 // Check if the item is an armor piece and equip it automatically

@@ -12,29 +12,29 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.UUID;
+import kitpvp.kitpvp.Main;
+import cooldown.CooldownManager;
 
 public class ArcherAbility implements Listener {
 
-    private final HashMap<UUID, Long> cooldowns = new HashMap<>();
-    private final long COOLDOWN_TIME = 10 * 1000; // 10 seconds in milliseconds
+    private final Main plugin;
+
+    public ArcherAbility(Main plugin) {
+        this.plugin = plugin;
+    }
 
     @EventHandler
     public void onEntityShootBow(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Player))
             return;
         Player player = (Player) event.getEntity();
-        long remainingCooldown = checkCooldown(player);
+        CooldownManager cooldownManager = plugin.getCooldownManager();
         if (hasArcherKit(player) && holdingKitItem(player, Material.BOW, ChatColor.GREEN + "Archer Bow"))
-            if (remainingCooldown == 0L) {
+            if (!cooldownManager.hasCooldown(player, "Explosive Arrow")) {
                 Arrow arrow = (Arrow) event.getProjectile();
                 arrow.setCustomName("ExplosiveArrow");
-                setCooldown(player);
-                hasArcherKit(player);
+                cooldownManager.setCooldown(player, "Explosive Arrow", 10);
                 player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GREEN + "You've used your ability"));
-            } else {
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.RED + "Your Archer ability is on cooldown for " + (remainingCooldown / 1000L) + " more seconds!"));
             }
     }
 
@@ -47,22 +47,8 @@ public class ArcherAbility implements Listener {
         }
     }
 
-    private long checkCooldown(Player player) {
-        if (cooldowns.containsKey(player.getUniqueId())) {
-            long timeLeft = cooldowns.get(player.getUniqueId()) - System.currentTimeMillis();
-            if (timeLeft > 0) {
-                return timeLeft;
-            }
-        }
-        return 0L;
-    }
-
     private boolean hasArcherKit(Player player) {
         return player.getInventory().contains(Material.BOW);
-    }
-
-    private void setCooldown(Player player) {
-        cooldowns.put(player.getUniqueId(), System.currentTimeMillis() + COOLDOWN_TIME);
     }
 
 

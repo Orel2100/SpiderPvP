@@ -29,9 +29,10 @@ import gameplay.ArenaBlockListener;
 import gameplay.DuelQueueManager;
 import gameplay.DuelManager;
 import gameplay.DuelGUIListener;
+import cooldown.CooldownManager;
 import economy.EloManager;
+import cooldown.CooldownUpdater;
 import gameplay.GUIUpdater;
-import gameplay.ArenaSetupManager;
 import moderation.UnmuteCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -105,6 +106,7 @@ public class Main extends JavaPlugin implements Listener {
     private ArenaManager arenaManager;
     private DuelQueueManager duelQueueManager;
     private EloManager eloManager;
+    private CooldownManager cooldownManager;
 
 
 
@@ -147,6 +149,7 @@ public class Main extends JavaPlugin implements Listener {
         arenaManager = new ArenaManager(this);
         duelQueueManager = new DuelQueueManager(this);
         eloManager = new EloManager(this);
+        cooldownManager = new CooldownManager();
 
         // Register events
         Bukkit.getPluginManager().registerEvents(this, this);
@@ -181,7 +184,9 @@ public class Main extends JavaPlugin implements Listener {
 
         //Arena Commands
         this.getCommand("setarenaspawn").setExecutor(new SetArenaSpawnCommand(this));
-        this.getCommand("arena").setExecutor(new ArenaCommand(this));
+        ArenaCommand arenaCommand = new ArenaCommand(this);
+        this.getCommand("arena").setExecutor(arenaCommand);
+        getServer().getPluginManager().registerEvents(arenaCommand, this);
 
         //kits saving
         saveDefaultKitsConfig();
@@ -201,11 +206,6 @@ public class Main extends JavaPlugin implements Listener {
         getCommand("unmute").setExecutor(new UnmuteCommand(this));
         getCommand("duel").setExecutor(new DuelCommand(this));
 
-        ArenaSetupManager arenaSetupManager = new ArenaSetupManager(this);
-        getServer().getPluginManager().registerEvents(arenaSetupManager, this);
-        getCommand("asetup").setExecutor(arenaSetupManager);
-        getCommand("arenasetpos").setExecutor(arenaSetupManager);
-
         // Register abilities
         registerEventsAbilities();
 
@@ -220,6 +220,7 @@ public class Main extends JavaPlugin implements Listener {
         }, 0L, 20L);
 
         new GUIUpdater(this).runTaskTimer(this, 0, 40);
+        new CooldownUpdater(this).runTaskTimer(this, 0, 20);
     }
 
 
@@ -235,8 +236,8 @@ public class Main extends JavaPlugin implements Listener {
         PluginManager pm = getServer().getPluginManager();
 
         // Registering all the ability classes
-        pm.registerEvents(new AeroAbility(), this);
-        pm.registerEvents(new ArcherAbility(), this);
+        pm.registerEvents(new AeroAbility(this), this);
+        pm.registerEvents(new ArcherAbility(this), this);
         pm.registerEvents(new BerserkerAbility(this), this);
         pm.registerEvents(new EndermanAbility(), this);
         pm.registerEvents(new JediAbility(), this);
@@ -286,6 +287,10 @@ public class Main extends JavaPlugin implements Listener {
 
     public EloManager getEloManager() {
         return eloManager;
+    }
+
+    public CooldownManager getCooldownManager() {
+        return cooldownManager;
     }
 
     public PremiumKitManager getPremiumKitManager() {

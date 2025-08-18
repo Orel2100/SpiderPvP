@@ -58,8 +58,11 @@ kits:
         enchantments:
           ARROW_INFINITE: 1
           ARROW_DAMAGE: 3
+      - material: STONE_SWORD
+        amount: 1
       - material: ARROW
         amount: 1
+        slot: 8
       - material: COOKED_BEEF
         name: '&aArcher Steak'
         amount: 16

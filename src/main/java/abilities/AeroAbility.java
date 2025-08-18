@@ -13,14 +13,17 @@ import org.bukkit.util.Vector;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 
-import java.util.HashMap;
-import java.util.UUID;
+import kitpvp.kitpvp.Main;
+import cooldown.CooldownManager;
 
 public class AeroAbility implements Listener {
 
     private final String AERO_FEATHER_NAME = "Aero Feather";
-    private final HashMap<UUID, Long> cooldowns = new HashMap<>();
-    private final long COOLDOWN_TIME = 10 * 1000; // 10 seconds in milliseconds
+    private final Main plugin;
+
+    public AeroAbility(Main plugin) {
+        this.plugin = plugin;
+    }
 
     @EventHandler
     public void onAeroAbilityUse(PlayerInteractEvent event) {
@@ -29,8 +32,8 @@ public class AeroAbility implements Listener {
 
         // Check if the player is holding the Aero Feather
         if (itemInHand.getType() == Material.FEATHER && itemInHand.hasItemMeta() && AERO_FEATHER_NAME.equals(itemInHand.getItemMeta().getDisplayName())) {
-            long remainingCooldown = checkCooldown(player);
-            if (remainingCooldown == 0L) {
+            CooldownManager cooldownManager = plugin.getCooldownManager();
+            if (!cooldownManager.hasCooldown(player, "Aero Dash")) {
                 // Dash the player forward
                 Vector direction = player.getLocation().getDirection().normalize();
                 player.setVelocity(direction.multiply(1.5)); // Adjust the multiplier for longer/shorter dash
@@ -39,25 +42,9 @@ public class AeroAbility implements Listener {
                 player.getWorld().spawnParticle(Particle.CLOUD, player.getLocation(), 10, 0.5, 0.5, 0.5, 0.1);
                 player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 1.0f, 1.0f);
 
-                setCooldown(player);
+                cooldownManager.setCooldown(player, "Aero Dash", 10);
                 player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GREEN + "You've used your Aero Dash ability!"));
-            } else {
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.RED + "Your Aero Dash ability is on cooldown for " + (remainingCooldown / 1000L) + " more seconds!"));
             }
         }
-    }
-
-    private long checkCooldown(Player player) {
-        if (cooldowns.containsKey(player.getUniqueId())) {
-            long timeLeft = cooldowns.get(player.getUniqueId()) - System.currentTimeMillis();
-            if (timeLeft > 0) {
-                return timeLeft;
-            }
-        }
-        return 0L;
-    }
-
-    private void setCooldown(Player player) {
-        cooldowns.put(player.getUniqueId(), System.currentTimeMillis() + COOLDOWN_TIME);
     }
 }
