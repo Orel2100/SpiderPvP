@@ -1,6 +1,5 @@
 package gameplay;
 
-import com.github.stefvanschie.inventoryframework.gui.guis.PlayerSelectionGUI;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -33,7 +32,7 @@ public class DuelCommand implements CommandExecutor {
         }
 
         if (args.length == 0) {
-            new DuelModeGUI(player).show(player);
+            new DuelModeGUI().open(player);
             return true;
         }
 

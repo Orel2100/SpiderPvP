@@ -1,46 +1,48 @@
 package gameplay;
 
-import com.github.stefvanschie.inventoryframework.gui.GuiItem;
-import com.github.stefvanschie.inventoryframework.gui.guis.ChestGui;
-import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import kitpvp.kitpvp.Main;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
-public class DuelQueueGUI extends ChestGui {
+import java.util.Collections;
 
-    private final DuelQueueManager duelQueueManager;
-    private final Player player;
+public class DuelQueueGUI {
 
-    public DuelQueueGUI(Player player) {
-        super(3, "Join the Duel Queue");
-        this.player = player;
-        this.duelQueueManager = Main.getInstance().getDuelQueueManager();
-        initialize();
-    }
+    public void open(Player player) {
+        Inventory gui = Bukkit.createInventory(null, 27, "Join the Duel Queue");
 
-    private void initialize() {
-        StaticPane pane = new StaticPane(0, 0, 9, 3);
-        pane.setOnClick(event -> event.setCancelled(true));
+        // Fill border with glass panes
+        ItemStack filler = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
+        ItemMeta fillerMeta = filler.getItemMeta();
+        fillerMeta.setDisplayName(" ");
+        filler.setItemMeta(fillerMeta);
+        for (int i = 0; i < gui.getSize(); i++) {
+            if (i < 10 || i > 16 || i % 9 == 0 || (i + 1) % 9 == 0) {
+                gui.setItem(i, filler);
+            }
+        }
 
         // Join Queue Item
         ItemStack joinItem = new ItemStack(Material.GREEN_WOOL);
-        joinItem.getItemMeta().setDisplayName(ChatColor.GREEN + "Join Queue");
-        pane.addItem(new GuiItem(joinItem, event -> {
-            player.closeInventory();
-            duelQueueManager.addPlayerToQueue(player);
-        }), 3, 1);
+        ItemMeta joinMeta = joinItem.getItemMeta();
+        joinMeta.setDisplayName(ChatColor.GREEN + "Join Queue");
+        joinMeta.setLore(Collections.singletonList(ChatColor.GRAY + "Find a random opponent."));
+        joinItem.setItemMeta(joinMeta);
+        gui.setItem(12, joinItem);
 
         // Leave Queue Item
         ItemStack leaveItem = new ItemStack(Material.RED_WOOL);
-        leaveItem.getItemMeta().setDisplayName(ChatColor.RED + "Leave Queue");
-        pane.addItem(new GuiItem(leaveItem, event -> {
-            player.closeInventory();
-            duelQueueManager.removePlayerFromQueue(player);
-        }), 5, 1);
+        ItemMeta leaveMeta = leaveItem.getItemMeta();
+        leaveMeta.setDisplayName(ChatColor.RED + "Leave Queue");
+        leaveMeta.setLore(Collections.singletonList(ChatColor.GRAY + "Exit the matchmaking queue."));
+        leaveItem.setItemMeta(leaveMeta);
+        gui.setItem(14, leaveItem);
 
-        addPane(pane);
+        player.openInventory(gui);
     }
 }
