@@ -30,8 +30,19 @@ public class DuelGUIListener implements Listener {
             if (clickedItem == null || !clickedItem.hasItemMeta()) return;
 
             String kitName = ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName());
-            plugin.getDuelQueueManager().addPlayer(player, kitName);
-            player.closeInventory();
+            boolean isPremium = plugin.getPremiumKitManager().getPremiumKits(player).containsKey(kitName);
+
+            if (isPremium) {
+                if (plugin.getPremiumKitManager().doesPlayerOwnKit(player, kitName)) {
+                    plugin.getDuelQueueManager().addPlayer(player, kitName);
+                    player.closeInventory();
+                } else {
+                    player.sendMessage(ChatColor.RED + "You don't own this kit!");
+                }
+            } else {
+                plugin.getDuelQueueManager().addPlayer(player, kitName);
+                player.closeInventory();
+            }
         }
     }
 }

@@ -20,6 +20,9 @@ import org.bukkit.entity.Player;
 import java.util.HashSet;
 import java.util.Set;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.GameMode;
+import economy.EloManager;
+import java.util.Random;
 import kitpvp.kitpvp.Main;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.Material;
@@ -30,6 +33,7 @@ public class DuelManager implements Listener {
     private final Main plugin;
     private final Map<UUID, Duel> activeDuels = new HashMap<>();
     private final Set<UUID> frozenPlayers = new HashSet<>();
+    private final Map<UUID, String> spectators = new HashMap<>();
 
     private DuelManager(Main plugin) {
         this.plugin = plugin;
@@ -137,6 +141,16 @@ public class DuelManager implements Listener {
         plugin.getArenaManager().setArenaStatus(duel.getArenaName(), ArenaStatus.REGENERATING);
         ArenaRegenManager.getInstance().restoreArena(duel.getArenaName());
         plugin.getArenaManager().setArenaStatus(duel.getArenaName(), ArenaStatus.AVAILABLE);
+
+        for (Map.Entry<UUID, String> entry : spectators.entrySet()) {
+            if (entry.getValue().equals(duel.getArenaName())) {
+                Player spectator = Bukkit.getPlayer(entry.getKey());
+                if (spectator != null) {
+                    spectator.setGameMode(GameMode.SURVIVAL);
+                    spectator.teleport(spectator.getWorld().getSpawnLocation());
+                }
+            }
+        }
     }
 
     public Duel getDuelByArenaName(String arenaName) {
@@ -148,14 +162,29 @@ public class DuelManager implements Listener {
         return null;
     }
 
+    public void addSpectator(Player spectator, String arenaName) {
+        spectators.put(spectator.getUniqueId(), arenaName);
+    }
+
+    public void removeSpectator(Player spectator) {
+        spectators.remove(spectator.getUniqueId());
+    }
+
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player deceased = event.getEntity();
         Duel duel = getDuel(deceased);
         if (duel != null) {
             Player winner = duel.getPlayer1() == deceased ? duel.getPlayer2() : duel.getPlayer1();
-            winner.sendMessage(ChatColor.GREEN + "You won the duel against " + deceased.getName() + "!");
-            deceased.sendMessage(ChatColor.RED + "You lost the duel against " + winner.getName() + ".");
+            EloManager eloManager = plugin.getEloManager();
+            int eloChange = new Random().nextInt(3) + 23; // 23, 24, or 25
+            int winnerElo = eloManager.getElo(winner) + eloChange;
+            int loserElo = eloManager.getElo(deceased) - eloChange;
+            eloManager.setElo(winner, winnerElo);
+            eloManager.setElo(deceased, loserElo);
+
+            winner.sendMessage(ChatColor.GREEN + "You won the duel against " + deceased.getName() + "! (+" + eloChange + " Elo)");
+            deceased.sendMessage(ChatColor.RED + "You lost the duel against " + winner.getName() + ". (-" + eloChange + " Elo)");
             endDuel(duel);
         }
     }

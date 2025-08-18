@@ -30,7 +30,9 @@ import gameplay.ArenaBlockListener;
 import gameplay.DuelQueueManager;
 import gameplay.DuelManager;
 import gameplay.DuelGUIListener;
+import economy.EloManager;
 import gameplay.GUIUpdater;
+import gameplay.SpectateCommand;
 import moderation.UnmuteCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -103,6 +105,7 @@ public class Main extends JavaPlugin implements Listener {
     private MessageManager messageManager;
     private ArenaManager arenaManager;
     private DuelQueueManager duelQueueManager;
+    private EloManager eloManager;
 
 
 
@@ -144,6 +147,7 @@ public class Main extends JavaPlugin implements Listener {
         messageManager = new MessageManager(this);
         arenaManager = new ArenaManager(this);
         duelQueueManager = new DuelQueueManager(this);
+        eloManager = new EloManager(this);
 
         // Register events
         Bukkit.getPluginManager().registerEvents(this, this);
@@ -198,6 +202,7 @@ public class Main extends JavaPlugin implements Listener {
         getCommand("unban").setExecutor(new UnbanCommand(this));
         getCommand("unmute").setExecutor(new UnmuteCommand(this));
         getCommand("duel").setExecutor(new DuelCommand(this));
+        getCommand("spectate").setExecutor(new SpectateCommand(this));
 
         // Register abilities
         registerEventsAbilities();
@@ -271,6 +276,18 @@ public class Main extends JavaPlugin implements Listener {
 
     public KitManager getKitManager() {
         return kitManager;
+    }
+
+    public Map<UUID, BukkitTask> getCombatTasks() {
+        return combatTasks;
+    }
+
+    public EloManager getEloManager() {
+        return eloManager;
+    }
+
+    public PremiumKitManager getPremiumKitManager() {
+        return premiumKitManager;
     }
 
     @EventHandler

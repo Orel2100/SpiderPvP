@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import economy.EconomyManager;
@@ -416,5 +417,32 @@ public class PremiumKitManager implements Listener {
         }
         // Ensure off-hand is not filled with stew
         player.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
+    }
+
+    public Map<String, ItemStack> getPremiumKits(Player player) {
+        Map<String, ItemStack> kits = new HashMap<>();
+        kits.put("Elite Warrior Kit", createDisplayItem(Material.DIAMOND_SWORD, "Elite Warrior Kit", player));
+        kits.put("Enderman Kit", createDisplayItem(Material.ENDER_EYE, "Enderman Kit", player));
+        kits.put("Wither Kit", createDisplayItem(Material.WITHER_SKELETON_SKULL, "Wither Kit", player));
+        kits.put("Aero Kit", createDisplayItem(Material.FEATHER, "Aero Kit", player));
+        kits.put("Jedi Kit", createDisplayItem(Material.NETHER_STAR, "Jedi Kit", player));
+        kits.put("Blaze Kit", createDisplayItem(Material.BLAZE_ROD, "Blaze Kit", player));
+        return kits;
+    }
+
+    private ItemStack createDisplayItem(Material material, String displayName, Player player) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(ChatColor.GREEN + displayName);
+        List<String> lore = new ArrayList<>();
+        if (doesPlayerOwnKit(player, displayName)) {
+            lore.add(ChatColor.GREEN + "Owned");
+        } else {
+            lore.add(ChatColor.RED + "Not Owned");
+            lore.add(ChatColor.GOLD + "Price: " + getKitPrice(displayName) + " coins");
+        }
+        meta.setLore(lore);
+        item.setItemMeta(meta);
+        return item;
     }
 }
