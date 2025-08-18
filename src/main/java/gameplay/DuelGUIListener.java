@@ -95,7 +95,7 @@ public class DuelGUIListener implements Listener {
 
             // Check for premium kit ownership
             if (plugin.getPremiumKitManager().getPremiumKits(player).containsKey(kitName)) {
-                if (!plugin.getPremiumKitManager().hasKit(player, kitName)) {
+                if (!plugin.getPremiumKitManager().doesPlayerOwnKit(player, kitName)) {
                     player.sendMessage(ChatColor.RED + "You do not own this kit!");
                     return;
                 }

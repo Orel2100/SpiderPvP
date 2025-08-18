@@ -66,7 +66,7 @@ public class KitSelectionGUI {
             List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
             lore.add("");
 
-            boolean hasKit = premiumKitManager.hasKit(player, entry.getKey());
+            boolean hasKit = premiumKitManager.doesPlayerOwnKit(player, entry.getKey());
             if (hasKit) {
                 lore.add(ChatColor.GREEN + "Click to select this kit!");
             } else {
