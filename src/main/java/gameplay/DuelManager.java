@@ -26,14 +26,18 @@ import java.util.Random;
 import kitpvp.kitpvp.Main;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.Material;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class DuelManager implements Listener {
 
     private static DuelManager instance;
     private final Main plugin;
     private final Map<UUID, Duel> activeDuels = new HashMap<>();
+    private final Map<UUID, UUID> duelRequests = new HashMap<>(); // Challenged -> Challenger
     private final Set<UUID> frozenPlayers = new HashSet<>();
-    private final Map<UUID, String> spectators = new HashMap<>();
     private final Map<UUID, String> duelSelectedKits = new HashMap<>();
 
     /**
@@ -126,16 +130,6 @@ public class DuelManager implements Listener {
         plugin.getArenaManager().setArenaStatus(duel.getArenaName(), ArenaStatus.REGENERATING);
         ArenaRegenManager.getInstance().restoreArena(duel.getArenaName());
         plugin.getArenaManager().setArenaStatus(duel.getArenaName(), ArenaStatus.AVAILABLE);
-
-        for (Map.Entry<UUID, String> entry : spectators.entrySet()) {
-            if (entry.getValue().equals(duel.getArenaName())) {
-                Player spectator = Bukkit.getPlayer(entry.getKey());
-                if (spectator != null) {
-                    spectator.setGameMode(GameMode.SURVIVAL);
-                    spectator.teleport(spectator.getWorld().getSpawnLocation());
-                }
-            }
-        }
     }
 
     private void startCountdown(Duel duel) {
@@ -184,14 +178,6 @@ public class DuelManager implements Listener {
         return null;
     }
 
-    public void addSpectator(Player spectator, String arenaName) {
-        spectators.put(spectator.getUniqueId(), arenaName);
-    }
-
-    public void removeSpectator(Player spectator) {
-        spectators.remove(spectator.getUniqueId());
-    }
-
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player deceased = event.getEntity();
@@ -216,5 +202,81 @@ public class DuelManager implements Listener {
         if (frozenPlayers.contains(event.getPlayer().getUniqueId())) {
             event.setTo(event.getFrom());
         }
+    }
+
+    public void sendDuelRequest(Player challenger, Player challenged) {
+        if (duelRequests.containsKey(challenged.getUniqueId())) {
+            challenger.sendMessage(ChatColor.RED + "That player already has a pending duel request.");
+            return;
+        }
+
+        duelRequests.put(challenged.getUniqueId(), challenger.getUniqueId());
+        challenger.sendMessage(ChatColor.GREEN + "You have challenged " + challenged.getName() + " to a duel.");
+
+        TextComponent message = new TextComponent(challenger.getName() + " has challenged you to a duel. ");
+        TextComponent accept = new TextComponent("[ACCEPT]");
+        accept.setColor(net.md_5.bungee.api.ChatColor.GREEN);
+        accept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/duel accept"));
+        accept.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to accept the duel!").create()));
+
+        TextComponent deny = new TextComponent("[DENY]");
+        deny.setColor(net.md_5.bungee.api.ChatColor.RED);
+        deny.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/duel deny"));
+        deny.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to deny the duel!").create()));
+
+        message.addExtra(accept);
+        message.addExtra(" ");
+        message.addExtra(deny);
+
+        challenged.spigot().sendMessage(message);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (duelRequests.containsKey(challenged.getUniqueId()) && duelRequests.get(challenged.getUniqueId()).equals(challenger.getUniqueId())) {
+                    duelRequests.remove(challenged.getUniqueId());
+                    challenger.sendMessage(ChatColor.RED + "Your duel request to " + challenged.getName() + " has expired.");
+                    challenged.sendMessage(ChatColor.RED + "Your duel request from " + challenger.getName() + " has expired.");
+                }
+            }
+        }.runTaskLater(plugin, 1200L); // 60 seconds
+    }
+
+    public void acceptDuelRequest(Player challenged) {
+        if (!duelRequests.containsKey(challenged.getUniqueId())) {
+            challenged.sendMessage(ChatColor.RED + "You don't have any pending duel requests.");
+            return;
+        }
+
+        UUID challengerUUID = duelRequests.get(challenged.getUniqueId());
+        Player challenger = Bukkit.getPlayer(challengerUUID);
+
+        if (challenger == null || !challenger.isOnline()) {
+            challenged.sendMessage(ChatColor.RED + "The player who challenged you is no longer online.");
+            duelRequests.remove(challenged.getUniqueId());
+            return;
+        }
+
+        duelRequests.remove(challenged.getUniqueId());
+
+        // For now, we'll just start a duel with a default kit. Kit selection will be added later.
+        startDuel(challenger, challenged, "Warrior");
+    }
+
+    public void denyDuelRequest(Player challenged) {
+        if (!duelRequests.containsKey(challenged.getUniqueId())) {
+            challenged.sendMessage(ChatColor.RED + "You don't have any pending duel requests.");
+            return;
+        }
+
+        UUID challengerUUID = duelRequests.get(challenged.getUniqueId());
+        Player challenger = Bukkit.getPlayer(challengerUUID);
+
+        if (challenger != null && challenger.isOnline()) {
+            challenger.sendMessage(ChatColor.RED + challenged.getName() + " has denied your duel request.");
+        }
+
+        challenged.sendMessage(ChatColor.GREEN + "You have denied the duel request.");
+        duelRequests.remove(challenged.getUniqueId());
     }
 }

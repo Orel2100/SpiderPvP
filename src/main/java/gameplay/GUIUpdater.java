@@ -10,6 +10,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import java.util.Arrays;
+import org.bukkit.ChatColor;
 
 public class GUIUpdater extends BukkitRunnable {
 
@@ -24,11 +25,11 @@ public class GUIUpdater extends BukkitRunnable {
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player.getOpenInventory().getTitle().equals("1v1 Arenas")) {
                 Inventory gui = player.getOpenInventory().getTopInventory();
-                gui.clear();
 
                 ArenaManager arenaManager = plugin.getArenaManager();
                 ConfigurationSection arenas = arenaManager.getConfig().getConfigurationSection("arenas");
                 if (arenas != null) {
+                    int slot = 0;
                     for (String arenaName : arenas.getKeys(false)) {
                         ArenaStatus status = plugin.getArenaManager().getArenaStatus(arenaName);
                         Material material;
@@ -56,9 +57,13 @@ public class GUIUpdater extends BukkitRunnable {
                             playerCount = 2;
                         }
 
-                        meta.setLore(Arrays.asList("Status: " + status.toString(), "Players: " + playerCount + "/2"));
+                        meta.setLore(Arrays.asList(
+                            ChatColor.GRAY + "Status: " + status.toString(),
+                            ChatColor.GRAY + "Players: " + playerCount + "/2"
+                        ));
                         arenaItem.setItemMeta(meta);
-                        gui.addItem(arenaItem);
+                        gui.setItem(slot, arenaItem);
+                        slot++;
                     }
                 }
             }

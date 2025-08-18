@@ -1,26 +1,42 @@
 package gameplay;
 
-import org.bukkit.Bukkit;
+import com.github.stefvanschie.inventoryframework.gui.GuiItem;
+import com.github.stefvanschie.inventoryframework.gui.guis.ChestGui;
+import com.github.stefvanschie.inventoryframework.gui.guis.PlayerSelectionGUI;
+import com.github.stefvanschie.inventoryframework.pane.StaticPane;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
-public class DuelModeGUI {
+public class DuelModeGUI extends ChestGui {
 
-    public void open(Player player) {
-        Inventory gui = Bukkit.createInventory(null, 27, "Select Duel Mode");
-        gui.setItem(11, createGuiItem(Material.DIAMOND_SWORD, "Join Random Queue"));
-        gui.setItem(15, createGuiItem(Material.COMPASS, "View Arenas"));
-        player.openInventory(gui);
+    private final Player player;
+
+    public DuelModeGUI(Player player) {
+        super(3, "Select Duel Mode");
+        this.player = player;
+        initialize();
     }
 
-    private ItemStack createGuiItem(Material material, String name) {
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(name);
-        item.setItemMeta(meta);
-        return item;
+    private void initialize() {
+        StaticPane pane = new StaticPane(0, 0, 9, 3);
+        pane.setOnClick(event -> event.setCancelled(true));
+
+        // Challenge Player Item
+        ItemStack challengeItem = new ItemStack(Material.PLAYER_HEAD);
+        challengeItem.getItemMeta().setDisplayName(ChatColor.AQUA + "Challenge a Player");
+        pane.addItem(new GuiItem(challengeItem, event -> {
+            new PlayerSelectionGUI(player).show(player);
+        }), 3, 1);
+
+        // Random Matchmaking Item
+        ItemStack queueItem = new ItemStack(Material.COMPASS);
+        queueItem.getItemMeta().setDisplayName(ChatColor.GOLD + "Random Matchmaking");
+        pane.addItem(new GuiItem(queueItem, event -> {
+            new DuelQueueGUI(player).show(player);
+        }), 5, 1);
+
+        addPane(pane);
     }
 }

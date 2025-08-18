@@ -1,76 +1,46 @@
 package gameplay;
 
-import org.bukkit.Bukkit;
+import com.github.stefvanschie.inventoryframework.gui.GuiItem;
+import com.github.stefvanschie.inventoryframework.gui.guis.ChestGui;
+import com.github.stefvanschie.inventoryframework.pane.StaticPane;
+import kitpvp.kitpvp.Main;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import kitpvp.kitpvp.Main;
-import org.bukkit.configuration.ConfigurationSection;
-import java.util.Arrays;
-import org.bukkit.ChatColor;
 
-public class DuelQueueGUI {
+public class DuelQueueGUI extends ChestGui {
 
-    private final Main plugin;
+    private final DuelQueueManager duelQueueManager;
     private final Player player;
 
-    public DuelQueueGUI(Main plugin, Player player) {
-        this.plugin = plugin;
+    public DuelQueueGUI(Player player) {
+        super(3, "Join the Duel Queue");
         this.player = player;
+        this.duelQueueManager = Main.getInstance().getDuelQueueManager();
+        initialize();
     }
 
-    public void open() {
-        Inventory gui = Bukkit.createInventory(null, 54, "1v1 Arenas");
+    private void initialize() {
+        StaticPane pane = new StaticPane(0, 0, 9, 3);
+        pane.setOnClick(event -> event.setCancelled(true));
 
-        for (int i = 0; i < 9; i++) {
-            gui.setItem(i, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
-        }
-        for (int i = 45; i < 54; i++) {
-            gui.setItem(i, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
-        }
+        // Join Queue Item
+        ItemStack joinItem = new ItemStack(Material.GREEN_WOOL);
+        joinItem.getItemMeta().setDisplayName(ChatColor.GREEN + "Join Queue");
+        pane.addItem(new GuiItem(joinItem, event -> {
+            player.closeInventory();
+            duelQueueManager.addPlayerToQueue(player);
+        }), 3, 1);
 
-        ArenaManager arenaManager = plugin.getArenaManager();
-        ConfigurationSection arenas = arenaManager.getConfig().getConfigurationSection("arenas");
-        if (arenas != null) {
-            for (String arenaName : arenas.getKeys(false)) {
-                ArenaStatus status = plugin.getArenaManager().getArenaStatus(arenaName);
-                Material material;
-                switch (status) {
-                    case COUNTDOWN:
-                        material = Material.ORANGE_WOOL;
-                        break;
-                    case FIGHTING:
-                        material = Material.RED_WOOL;
-                        break;
-                    case REGENERATING:
-                        material = Material.PINK_WOOL;
-                        break;
-                    default:
-                        material = Material.GREEN_WOOL;
-                        break;
-                }
-                ItemStack arenaItem = new ItemStack(material);
-                ItemMeta meta = arenaItem.getItemMeta();
-                meta.setDisplayName(arenaName);
+        // Leave Queue Item
+        ItemStack leaveItem = new ItemStack(Material.RED_WOOL);
+        leaveItem.getItemMeta().setDisplayName(ChatColor.RED + "Leave Queue");
+        pane.addItem(new GuiItem(leaveItem, event -> {
+            player.closeInventory();
+            duelQueueManager.removePlayerFromQueue(player);
+        }), 5, 1);
 
-                int playerCount = 0;
-                Duel duel = DuelManager.getInstance(plugin).getDuelByArenaName(arenaName);
-                if (duel != null) {
-                    playerCount = 2;
-                }
-
-                meta.setLore(Arrays.asList(
-                    ChatColor.GRAY + "Status: " + status.toString(),
-                    ChatColor.GRAY + "Players: " + playerCount + "/2",
-                    "",
-                    ChatColor.GREEN + "Click to join the queue!"
-                ));
-                arenaItem.setItemMeta(meta);
-                gui.addItem(arenaItem);
-            }
-        }
-        player.openInventory(gui);
+        addPane(pane);
     }
 }

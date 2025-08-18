@@ -4,61 +4,58 @@ import org.bukkit.entity.Player;
 import java.util.LinkedList;
 import java.util.Queue;
 import kitpvp.kitpvp.Main;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import org.bukkit.ChatColor;
 
 public class DuelQueueManager {
 
     private final Main plugin;
-    private final Map<String, Queue<Player>> arenaQueues = new HashMap<>();
-    private final Queue<Player> randomQueue = new LinkedList<>();
-    private final Map<UUID, String> selectedKits = new HashMap<>();
+    private final Queue<Player> queue = new LinkedList<>();
 
     public DuelQueueManager(Main plugin) {
         this.plugin = plugin;
     }
 
-    public void addPlayer(Player player, String kitName, String arenaName) {
-        if (arenaName.equalsIgnoreCase("random")) {
-            randomQueue.add(player);
-        } else {
-            arenaQueues.computeIfAbsent(arenaName, k -> new LinkedList<>()).add(player);
+    public void addPlayerToQueue(Player player) {
+        if (queue.contains(player)) {
+            player.sendMessage(ChatColor.RED + "You are already in the queue.");
+            return;
         }
-        selectedKits.put(player.getUniqueId(), kitName);
-        player.sendMessage("You have been added to the duel queue.");
-        checkQueues();
+        queue.add(player);
+        player.sendMessage(ChatColor.GREEN + "You have joined the duel queue.");
+        checkForMatch();
     }
 
-    public void removePlayer(Player player) {
-        randomQueue.remove(player);
-        arenaQueues.values().forEach(q -> q.remove(player));
-        selectedKits.remove(player.getUniqueId());
+    public void removePlayerFromQueue(Player player) {
+        if (!queue.contains(player)) {
+            player.sendMessage(ChatColor.RED + "You are not in the queue.");
+            return;
+        }
+        queue.remove(player);
+        player.sendMessage(ChatColor.GREEN + "You have left the duel queue.");
     }
 
-    private void checkQueues() {
-        // Check random queue
-        if (randomQueue.size() >= 2) {
-            Player player1 = randomQueue.poll();
-            Player player2 = randomQueue.poll();
-            // find any available arena
-            String kit1 = selectedKits.get(player1.getUniqueId());
-            DuelManager.getInstance(plugin).startDuel(player1, player2, kit1);
-            selectedKits.remove(player1.getUniqueId());
-            selectedKits.remove(player2.getUniqueId());
-        }
+    private void checkForMatch() {
+        if (queue.size() >= 2) {
+            Player player1 = queue.poll();
+            Player player2 = queue.poll();
 
-        // Check per-arena queues
-        for (Map.Entry<String, Queue<Player>> entry : arenaQueues.entrySet()) {
-            Queue<Player> queue = entry.getValue();
-            if (queue.size() >= 2) {
-                Player player1 = queue.poll();
-                Player player2 = queue.poll();
-                String kit1 = selectedKits.get(player1.getUniqueId());
-                DuelManager.getInstance(plugin).startDuel(player1, player2, kit1);
-                selectedKits.remove(player1.getUniqueId());
-                selectedKits.remove(player2.getUniqueId());
+            if (player1 == null || !player1.isOnline() || player2 == null || !player2.isOnline()) {
+                // One of the players logged off, requeue the other if they are online
+                if (player1 != null && player1.isOnline()) queue.add(player1);
+                if (player2 != null && player2.isOnline()) queue.add(player2);
+                return;
             }
+
+            player1.sendMessage(ChatColor.GREEN + "Match found! You will be dueling against " + player2.getName());
+            player2.sendMessage(ChatColor.GREEN + "Match found! You will be dueling against " + player1.getName());
+
+            // Defaulting to "Warrior" kit for now as per the new simplified flow.
+            // The full kit selection will happen right before the duel starts.
+            plugin.getDuelManager().startDuel(player1, player2, "Warrior");
         }
+    }
+
+    public boolean isInQueue(Player player) {
+        return queue.contains(player);
     }
 }

@@ -20,7 +20,7 @@ public class ArenaSetupWizard {
     private final Player player;
     private final String arenaName;
     private final ItemStack[] playerInventory;
-    private Location spawn1, spawn2, corner1, corner2, specSpawn;
+    private Location spawn1, spawn2, corner1, corner2;
 
     public ArenaSetupWizard(Main plugin, Player player, String arenaName) {
         this.plugin = plugin;
@@ -37,7 +37,6 @@ public class ArenaSetupWizard {
         player.getInventory().setItem(1, createSetupItem(Material.BLUE_BED, "Set Spawn 2"));
         player.getInventory().setItem(2, createSetupItem(Material.OAK_FENCE, "Set Corner 1"));
         player.getInventory().setItem(3, createSetupItem(Material.OAK_FENCE, "Set Corner 2"));
-        player.getInventory().setItem(4, createSetupItem(Material.COMPASS, "Set Spectator Spawn"));
         player.getInventory().setItem(8, createSetupItem(Material.GREEN_WOOL, "Save Arena"));
 
         player.sendMessage(ChatColor.GREEN + "Arena setup started for " + arenaName + ". Right-click with the items to set the positions.");
@@ -49,12 +48,11 @@ public class ArenaSetupWizard {
             case "Set Spawn 2": this.spawn2 = loc; break;
             case "Set Corner 1": this.corner1 = loc; break;
             case "Set Corner 2": this.corner2 = loc; break;
-            case "Set Spectator Spawn": this.specSpawn = loc; break;
         }
     }
 
     public boolean isComplete() {
-        return spawn1 != null && spawn2 != null && corner1 != null && corner2 != null && specSpawn != null;
+        return spawn1 != null && spawn2 != null && corner1 != null && corner2 != null;
     }
 
     public void saveArena() {
@@ -64,7 +62,6 @@ public class ArenaSetupWizard {
         saveLoc(arenaManager, path + ".spawn2", spawn2);
         saveLoc(arenaManager, path + ".corner1", corner1);
         saveLoc(arenaManager, path + ".corner2", corner2);
-        saveLoc(arenaManager, path + ".specspawn", specSpawn);
         arenaManager.saveConfig();
         finish();
     }

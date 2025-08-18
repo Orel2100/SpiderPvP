@@ -77,11 +77,14 @@ commands:
     description: Join the 1v1 duel queue.
     usage: /<command>
     permission: kitpvp.duel
-  arena:
-    description: Teleport to a random spawn point in the arena.
-    usage: /arena
-    permission: kitpvp.arena
+  arenalist:
+    description: List all arenas and their status.
+    usage: /<command>
+    permission: prisoncore.arenalist
 permissions:
+  prisoncore.arenalist:
+    description: Allows viewing the arena list.
+    default: op
   kitpvp.addcoins:
     description: Allows adding coins to players.
     default: op

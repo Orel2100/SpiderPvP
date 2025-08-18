@@ -205,6 +205,7 @@ public class Main extends JavaPlugin implements Listener {
         getCommand("unban").setExecutor(new UnbanCommand(this));
         getCommand("unmute").setExecutor(new UnmuteCommand(this));
         getCommand("duel").setExecutor(new DuelCommand(this));
+        getCommand("arenalist").setExecutor(new gameplay.ArenaListCommand(this));
 
         // Register abilities
         registerEventsAbilities();
@@ -275,6 +276,10 @@ public class Main extends JavaPlugin implements Listener {
 
     public DuelQueueManager getDuelQueueManager() {
         return duelQueueManager;
+    }
+
+    public DuelManager getDuelManager() {
+        return DuelManager.getInstance(this);
     }
 
     public KitManager getKitManager() {
