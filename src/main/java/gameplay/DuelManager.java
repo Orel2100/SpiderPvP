@@ -34,6 +34,7 @@ public class DuelManager implements Listener {
     private final Map<UUID, Duel> activeDuels = new HashMap<>();
     private final Set<UUID> frozenPlayers = new HashSet<>();
     private final Map<UUID, String> spectators = new HashMap<>();
+    private final Map<UUID, String> duelSelectedKits = new HashMap<>();
 
     /**
      * Manages the 1v1 dueling system.
@@ -94,49 +95,29 @@ public class DuelManager implements Listener {
         player1.getInventory().clear();
         player2.getInventory().clear();
 
-        // Give kits
-        plugin.getKitManager().giveKit(player1, kitName);
-        plugin.getKitManager().giveKit(player2, kitName);
-
-        // Give blocks
-        ItemStack blocks = new ItemStack(Material.WHITE_WOOL, 64);
-        player1.getInventory().addItem(blocks);
-        player2.getInventory().addItem(blocks);
-
         Duel duel = new Duel(player1, player2, availableArena);
         activeDuels.put(player1.getUniqueId(), duel);
         activeDuels.put(player2.getUniqueId(), duel);
 
         plugin.getArenaManager().setArenaStatus(availableArena, ArenaStatus.COUNTDOWN);
-        ArenaRegenManager.getInstance().startTracking(availableArena);
 
-        final String finalAvailableArena = availableArena;
-        frozenPlayers.add(player1.getUniqueId());
-        frozenPlayers.add(player2.getUniqueId());
-
-        new BukkitRunnable() {
-            int countdown = 5;
-
-            @Override
-            public void run() {
-                if (countdown > 0) {
-                    player1.sendMessage(ChatColor.GREEN + "Duel starting in " + countdown + "...");
-                    player2.sendMessage(ChatColor.GREEN + "Duel starting in " + countdown + "...");
-                    countdown--;
-                } else {
-                    player1.sendMessage(ChatColor.GREEN + "Duel started!");
-                    player2.sendMessage(ChatColor.GREEN + "Duel started!");
-                    plugin.getArenaManager().setArenaStatus(finalAvailableArena, ArenaStatus.FIGHTING);
-                    frozenPlayers.remove(player1.getUniqueId());
-                    frozenPlayers.remove(player2.getUniqueId());
-                    cancel();
-                }
-            }
-        }.runTaskTimer(plugin, 0, 20);
+        new KitSelectionGUI(plugin, player1).open();
+        new KitSelectionGUI(plugin, player2).open();
     }
 
     public Duel getDuel(Player player) {
         return activeDuels.get(player.getUniqueId());
+    }
+
+    public void setPlayerKit(Player player, String kitName) {
+        duelSelectedKits.put(player.getUniqueId(), kitName);
+        Duel duel = getDuel(player);
+        if (duel != null) {
+            Player otherPlayer = duel.getPlayer1() == player ? duel.getPlayer2() : duel.getPlayer1();
+            if (duelSelectedKits.containsKey(otherPlayer.getUniqueId())) {
+                startCountdown(duel);
+            }
+        }
     }
 
     public void endDuel(Duel duel) {
@@ -155,6 +136,43 @@ public class DuelManager implements Listener {
                 }
             }
         }
+    }
+
+    private void startCountdown(Duel duel) {
+        Player player1 = duel.getPlayer1();
+        Player player2 = duel.getPlayer2();
+        String arenaName = duel.getArenaName();
+
+        plugin.getKitManager().giveKit(player1, duelSelectedKits.get(player1.getUniqueId()));
+        plugin.getKitManager().giveKit(player2, duelSelectedKits.get(player2.getUniqueId()));
+
+        // Give blocks
+        ItemStack blocks = new ItemStack(Material.WHITE_WOOL, 64);
+        player1.getInventory().addItem(blocks);
+        player2.getInventory().addItem(blocks);
+
+        frozenPlayers.add(player1.getUniqueId());
+        frozenPlayers.add(player2.getUniqueId());
+
+        new BukkitRunnable() {
+            int countdown = 5;
+
+            @Override
+            public void run() {
+                if (countdown > 0) {
+                    player1.sendMessage(ChatColor.GREEN + "Duel starting in " + countdown + "...");
+                    player2.sendMessage(ChatColor.GREEN + "Duel starting in " + countdown + "...");
+                    countdown--;
+                } else {
+                    player1.sendMessage(ChatColor.GREEN + "Duel started!");
+                    player2.sendMessage(ChatColor.GREEN + "Duel started!");
+                    plugin.getArenaManager().setArenaStatus(arenaName, ArenaStatus.FIGHTING);
+                    frozenPlayers.remove(player1.getUniqueId());
+                    frozenPlayers.remove(player2.getUniqueId());
+                    cancel();
+                }
+            }
+        }.runTaskTimer(plugin, 0, 20);
     }
 
     public Duel getDuelByArenaName(String arenaName) {

@@ -54,6 +54,14 @@ public class DuelGUIListener implements Listener {
             if (clickedItem == null || !clickedItem.hasItemMeta()) return;
 
             String kitName = ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName());
+
+            Duel duel = DuelManager.getInstance(plugin).getDuel(player);
+            if (duel != null) {
+                DuelManager.getInstance(plugin).setPlayerKit(player, kitName);
+                player.closeInventory();
+                return;
+            }
+
             DuelContext context = DuelGUIManager.getInstance().getContext(player.getUniqueId());
             if (context == null) return;
             String arenaName = context.getArenaName();

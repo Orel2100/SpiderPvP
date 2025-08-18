@@ -25,7 +25,7 @@ kits:
         name: '&bWarrior Sword'
         amount: 1
         enchantments:
-          DAMAGE_ALL: 3
+          DAMAGE_ALL: 2
           KNOCKBACK: 1
       - material: COOKED_BEEF
         name: '&bWarrior Steak'
@@ -65,31 +65,31 @@ kits:
         amount: 16
   berserker:
     helmet:
-      material: DIAMOND_HELMET
+      material: IRON_HELMET
       name: '&cBerserker Helmet'
       enchantments:
-        PROTECTION_ENVIRONMENTAL: 3
+        PROTECTION_ENVIRONMENTAL: 2
     chestplate:
-      material: DIAMOND_CHESTPLATE
+      material: IRON_CHESTPLATE
       name: '&cBerserker Chestplate'
       enchantments:
-        PROTECTION_ENVIRONMENTAL: 3
+        PROTECTION_ENVIRONMENTAL: 2
     leggings:
-      material: DIAMOND_LEGGINGS
+      material: IRON_LEGGINGS
       name: '&cBerserker Leggings'
       enchantments:
-        PROTECTION_ENVIRONMENTAL: 3
+        PROTECTION_ENVIRONMENTAL: 2
     boots:
-      material: DIAMOND_BOOTS
+      material: IRON_BOOTS
       name: '&cBerserker Boots'
       enchantments:
-        PROTECTION_ENVIRONMENTAL: 3
+        PROTECTION_ENVIRONMENTAL: 2
     items:
       - material: DIAMOND_AXE
         name: '&cBerserker Axe'
         amount: 1
         enchantments:
-          DAMAGE_ALL: 5
+          DAMAGE_ALL: 4
           KNOCKBACK: 2
       - material: GOLDEN_APPLE
         name: '&cBerserker Apple'

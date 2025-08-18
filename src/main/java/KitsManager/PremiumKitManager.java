@@ -233,6 +233,8 @@ public class PremiumKitManager implements Listener {
                 return 2500;
             case "Blaze Kit":
                 return 3000;
+            case "Ice Mage Kit":
+                return 3500;
             default:
                 return 0;
         }
@@ -254,6 +256,7 @@ public class PremiumKitManager implements Listener {
         createKitMenuItem(kitMenuPremium, 16, Material.FEATHER, ChatColor.GREEN +"Aero Kit", player);
         createKitMenuItem(kitMenuPremium, 12, Material.NETHER_STAR, ChatColor.GREEN + "Jedi Kit", player);
         createKitMenuItem(kitMenuPremium, 14, Material.BLAZE_ROD, ChatColor.GREEN + "Blaze Kit", player);
+        createKitMenuItem(kitMenuPremium, 22, Material.ICE, ChatColor.GREEN + "Ice Mage Kit", player);
 
         player.openInventory(kitMenuPremium);
     }
@@ -298,6 +301,11 @@ public class PremiumKitManager implements Listener {
                 lore.add(ChatColor.GRAY + "Weapon: Iron Sword");
                 lore.add(ChatColor.RED + "Cooldown: 30s");
                 break;
+            case "Ice Mage Kit":
+                lore.add(ChatColor.GRAY + "Ability: Ice Blast (Right-Click)");
+                lore.add(ChatColor.GRAY + "Weapon: Stone Sword");
+                lore.add(ChatColor.RED + "Cooldown: 20s");
+                break;
         }
 
         // Add ownership status to the lore
@@ -315,6 +323,14 @@ public class PremiumKitManager implements Listener {
         inventory.setItem(slot, item);
     }
 
+
+    public void giveIceMageKit(Player player) {
+        player.getInventory().clear();
+        setArmor(player, Material.IRON_HELMET, Material.IRON_CHESTPLATE, Material.IRON_LEGGINGS, Material.IRON_BOOTS);
+        giveItemWithEnchant(player, Material.STONE_SWORD, Enchantment.DAMAGE_ALL, 1);
+        giveAbilityItem(player, Material.ICE, "Ice Blast (Right Click)");
+        fillWithStew(player);
+    }
 
     public void giveEliteWarriorKit(Player player) {
         player.getInventory().clear();
@@ -427,6 +443,7 @@ public class PremiumKitManager implements Listener {
         kits.put("Aero Kit", createDisplayItem(Material.FEATHER, "Aero Kit", player));
         kits.put("Jedi Kit", createDisplayItem(Material.NETHER_STAR, "Jedi Kit", player));
         kits.put("Blaze Kit", createDisplayItem(Material.BLAZE_ROD, "Blaze Kit", player));
+        kits.put("Ice Mage Kit", createDisplayItem(Material.ICE, "Ice Mage Kit", player));
         return kits;
     }
 

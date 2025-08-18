@@ -34,17 +34,17 @@ public class ArenaCommand implements CommandExecutor {
         Player player = (Player) sender;
 
         if (args.length > 0) {
-            if (args[0].equalsIgnoreCase("create")) {
-                if (!player.hasPermission("arena.create")) {
+            if (args[0].equalsIgnoreCase("setup")) {
+                if (!player.hasPermission("arena.setup")) {
                     player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                     return true;
                 }
                 if (args.length != 2) {
-                    player.sendMessage(ChatColor.RED + "Usage: /arena create <name>");
+                    player.sendMessage(ChatColor.RED + "Usage: /arena setup <name>");
                     return true;
                 }
                 String arenaName = args[1];
-                new ArenaSetupWizard((Main) plugin, player, arenaName).openSetupGUI();
+                new ArenaSetupWizard((Main) plugin, player, arenaName).start();
                 return true;
             }
         }

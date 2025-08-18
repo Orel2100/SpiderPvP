@@ -81,14 +81,6 @@ commands:
     description: Teleport to a random spawn point in the arena.
     usage: /arena
     permission: kitpvp.arena
-  asetup:
-    description: Opens the arena setup wizard.
-    usage: /<command> <name>
-    permission: arena.setup
-  arenasetpos:
-    description: Sets a position for the arena setup wizard.
-    usage: /<command>
-    permission: arena.setup
 permissions:
   kitpvp.addcoins:
     description: Allows adding coins to players.
@@ -140,9 +132,6 @@ permissions:
     default: true
   arena.create:
     description: Allows creating arenas.
-    default: op
-  arena.setup:
-    description: Allows creating and managing arenas.
     default: op
 
 
