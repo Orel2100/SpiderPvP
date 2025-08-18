@@ -8,6 +8,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import org.bukkit.Location;
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
 
 public class ArenaManager {
 
@@ -56,5 +59,16 @@ public class ArenaManager {
 
     public ArenaStatus getArenaStatus(String arenaName) {
         return arenaStatus.getOrDefault(arenaName, ArenaStatus.AVAILABLE);
+    }
+
+    public Location getSpectatorSpawn(String arenaName) {
+        ConfigurationSection arena = getConfig().getConfigurationSection("arenas." + arenaName);
+        if (arena == null) return null;
+        return new Location(
+            Bukkit.getWorld(arena.getString("specspawn.world")),
+            arena.getDouble("specspawn.x"),
+            arena.getDouble("specspawn.y"),
+            arena.getDouble("specspawn.z")
+        );
     }
 }

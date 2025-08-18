@@ -77,14 +77,18 @@ commands:
     description: Join the 1v1 duel queue.
     usage: /<command>
     permission: kitpvp.duel
-  spectate:
-    description: Spectate a duel.
-    usage: /<command> <player>
-    permission: kitpvp.spectate
   arena:
     description: Teleport to a random spawn point in the arena.
     usage: /arena
     permission: kitpvp.arena
+  asetup:
+    description: Opens the arena setup wizard.
+    usage: /<command> <name>
+    permission: arena.setup
+  arenasetpos:
+    description: Sets a position for the arena setup wizard.
+    usage: /<command>
+    permission: arena.setup
 permissions:
   kitpvp.addcoins:
     description: Allows adding coins to players.
@@ -128,9 +132,6 @@ permissions:
   kitpvp.duel:
     description: Allows players to join the duel queue.
     default: true
-  kitpvp.spectate:
-    description: Allows players to spectate duels.
-    default: true
   arena.setspawn:
     description: Allows setting arena spawn points.
     default: op
@@ -139,6 +140,9 @@ permissions:
     default: true
   arena.create:
     description: Allows creating arenas.
+    default: op
+  arena.setup:
+    description: Allows creating and managing arenas.
     default: op
 
 

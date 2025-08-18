@@ -35,6 +35,10 @@ public class DuelManager implements Listener {
     private final Set<UUID> frozenPlayers = new HashSet<>();
     private final Map<UUID, String> spectators = new HashMap<>();
 
+    /**
+     * Manages the 1v1 dueling system.
+     * This class is a singleton.
+     */
     private DuelManager(Main plugin) {
         this.plugin = plugin;
     }

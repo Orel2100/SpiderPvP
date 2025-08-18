@@ -24,7 +24,6 @@ import moderation.PunishGUIListener;
 import moderation.ReportCommand;
 import moderation.UnbanCommand;
 import gameplay.ArenaManager;
-import gameplay.ArenaSetupListener;
 import gameplay.DuelCommand;
 import gameplay.ArenaBlockListener;
 import gameplay.DuelQueueManager;
@@ -32,7 +31,7 @@ import gameplay.DuelManager;
 import gameplay.DuelGUIListener;
 import economy.EloManager;
 import gameplay.GUIUpdater;
-import gameplay.SpectateCommand;
+import gameplay.ArenaSetupManager;
 import moderation.UnmuteCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -160,7 +159,6 @@ public class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new ReportGUIListener(this), this);
         getServer().getPluginManager().registerEvents(new PunishGUIListener(this), this);
         getServer().getPluginManager().registerEvents(new PunishmentListener(this), this);
-        getServer().getPluginManager().registerEvents(new ArenaSetupListener(this), this);
         getServer().getPluginManager().registerEvents(new ArenaBlockListener(this), this);
         getServer().getPluginManager().registerEvents(DuelManager.getInstance(this), this);
         getServer().getPluginManager().registerEvents(new DuelGUIListener(this), this);
@@ -202,7 +200,11 @@ public class Main extends JavaPlugin implements Listener {
         getCommand("unban").setExecutor(new UnbanCommand(this));
         getCommand("unmute").setExecutor(new UnmuteCommand(this));
         getCommand("duel").setExecutor(new DuelCommand(this));
-        getCommand("spectate").setExecutor(new SpectateCommand(this));
+
+        ArenaSetupManager arenaSetupManager = new ArenaSetupManager(this);
+        getServer().getPluginManager().registerEvents(arenaSetupManager, this);
+        getCommand("asetup").setExecutor(arenaSetupManager);
+        getCommand("arenasetpos").setExecutor(arenaSetupManager);
 
         // Register abilities
         registerEventsAbilities();

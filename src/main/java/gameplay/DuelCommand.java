@@ -6,6 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import kitpvp.kitpvp.Main;
+import gameplay.DuelModeGUI;
 import gameplay.DuelQueueGUI;
 import org.bukkit.Bukkit;
 
@@ -32,7 +33,7 @@ public class DuelCommand implements CommandExecutor {
         }
 
         if (args.length == 0) {
-            new DuelQueueGUI(plugin, player).open();
+            new DuelModeGUI().open(player);
             return true;
         }
 

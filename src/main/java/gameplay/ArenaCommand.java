@@ -44,7 +44,7 @@ public class ArenaCommand implements CommandExecutor {
                     return true;
                 }
                 String arenaName = args[1];
-                new ArenaSetupWizard((Main) plugin, player, arenaName).start();
+                new ArenaSetupWizard((Main) plugin, player, arenaName).openSetupGUI();
                 return true;
             }
         }
