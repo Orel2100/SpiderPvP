@@ -32,6 +32,7 @@ import gameplay.LobbyItemListener;
 import gameplay.ClassSelectorGUI;
 import gameplay.ClassSelectorGUIListener;
 import gameplay.ProfileGUI;
+import gameplay.ProfileGUIListener;
 import globalkit.GlobalKitManager;
 import cooldown.CooldownManager;
 import economy.EloManager;
@@ -180,6 +181,7 @@ public class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new PunishmentListener(this), this);
         getServer().getPluginManager().registerEvents(new ArenaBlockListener(this), this);
         getServer().getPluginManager().registerEvents(new LobbyItemListener(this), this);
+        getServer().getPluginManager().registerEvents(new ProfileGUIListener(), this);
 
         // Load kit ownership
         premiumKitManager.ensureKitOwnershipFileExists();

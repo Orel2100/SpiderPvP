@@ -161,8 +161,13 @@ public class KitManager {
         ConfigurationSection kitsSection = kitsConfig.getConfigurationSection("kits");
         if (kitsSection != null) {
             for (String kitName : kitsSection.getKeys(false)) {
-                ItemStack displayItem = createItemStackFromConfig("kits." + kitName + ".items.0");
-                kits.put(kitName, displayItem);
+                List<Map<?, ?>> itemsList = kitsSection.getMapList(kitName + ".items");
+                if (itemsList != null && !itemsList.isEmpty()) {
+                    // Get the first item from the list to use as the display icon
+                    Map<?, ?> firstItemMap = itemsList.get(0);
+                    ItemStack displayItem = createItemStackFromMap(firstItemMap);
+                    kits.put(kitName, displayItem);
+                }
             }
         }
         return kits;
