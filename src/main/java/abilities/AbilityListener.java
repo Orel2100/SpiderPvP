@@ -31,8 +31,8 @@ public class AbilityListener implements Listener {
         }
 
         if (kit.equalsIgnoreCase("archer")) {
-            // Grant 5 XP per hit for Archer, requires 20 hits for a full charge
-            abilityManager.addXP(damager, 5);
+            // Grant 10 XP per hit for Archer, requires 10 hits for a full charge
+            abilityManager.addXP(damager, 10);
         }
         // TODO: Add cases for other kits here in the future
     }

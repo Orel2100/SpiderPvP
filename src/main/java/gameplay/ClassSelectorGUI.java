@@ -31,6 +31,13 @@ public class ClassSelectorGUI {
         this.plugin = plugin;
     }
 
+    private String capitalize(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
+    }
+
     public void openClassSelector(Player player) {
         Inventory gui = Bukkit.createInventory(null, 27, "Class Selector");
 
@@ -59,7 +66,7 @@ public class ClassSelectorGUI {
         String currentKit = plugin.getGlobalKitManager().getKit(player);
         ItemStack currentKitItem = new ItemStack(Material.PAPER);
         ItemMeta currentKitMeta = currentKitItem.getItemMeta();
-        currentKitMeta.setDisplayName(ChatColor.YELLOW + "Current Class: " + ChatColor.GOLD + currentKit);
+        currentKitMeta.setDisplayName(ChatColor.YELLOW + "Current Class: " + ChatColor.GOLD + capitalize(currentKit));
         currentKitItem.setItemMeta(currentKitMeta);
         gui.setItem(13, currentKitItem);
 
@@ -70,7 +77,6 @@ public class ClassSelectorGUI {
         String title = (type == ClassType.NORMAL) ? "Normal Classes" : "Hero Classes";
         Inventory gui = Bukkit.createInventory(null, 45, title); // 5 rows for better spacing
 
-        // Use dark glass panes for the background
         ItemStack pane = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta paneMeta = pane.getItemMeta();
         paneMeta.setDisplayName(" ");
@@ -88,7 +94,7 @@ public class ClassSelectorGUI {
 
         int slotIndex = 0;
         for (Map.Entry<String, ItemStack> entry : kits.entrySet()) {
-            if (slotIndex >= KIT_SLOTS.size()) break; // Stop if we run out of pre-defined slots
+            if (slotIndex >= KIT_SLOTS.size()) break;
 
             ItemStack kitItem = entry.getValue().clone();
             ItemMeta meta = kitItem.getItemMeta();
@@ -97,6 +103,8 @@ public class ClassSelectorGUI {
                 plugin.getLogger().warning("Could not create display item for kit '" + entry.getKey() + "' because its material is invalid or AIR.");
                 continue;
             }
+
+            String kitName = capitalize(entry.getKey());
 
             List<String> lore = new ArrayList<>();
             if(meta.hasLore()) {
@@ -107,15 +115,15 @@ public class ClassSelectorGUI {
             if (type == ClassType.HERO) {
                 boolean hasKit = plugin.getPremiumKitManager().doesPlayerOwnKit(player, entry.getKey());
                 if (hasKit) {
-                    meta.setDisplayName(ChatColor.GREEN + entry.getKey());
+                    meta.setDisplayName(ChatColor.GREEN + kitName);
                     lore.add(ChatColor.YELLOW + "Click to select this kit!");
                 } else {
-                    meta.setDisplayName(ChatColor.RED + entry.getKey());
+                    meta.setDisplayName(ChatColor.RED + kitName);
                     lore.add(ChatColor.RED + "LOCKED");
                     lore.add(ChatColor.GRAY + "Purchase at the store!");
                 }
             } else {
-                meta.setDisplayName(ChatColor.GREEN + entry.getKey());
+                meta.setDisplayName(ChatColor.GREEN + kitName);
                 lore.add(ChatColor.YELLOW + "Click to select this kit!");
             }
 

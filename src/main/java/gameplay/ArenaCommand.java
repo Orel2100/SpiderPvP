@@ -57,6 +57,11 @@ public class ArenaCommand implements CommandExecutor, Listener {
             return true;
         }
 
+        if (plugin.getGlobalKitManager().getKit(player).equalsIgnoreCase("None")) {
+            player.sendMessage(ChatColor.RED + "You must select a kit before entering the arena! Use /kit or the selector in your hotbar.");
+            return true;
+        }
+
         File arenaFile = new File(plugin.getDataFolder(), "arenalocations.yml");
         FileConfiguration arenaConfig = YamlConfiguration.loadConfiguration(arenaFile);
 
