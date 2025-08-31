@@ -24,15 +24,14 @@ import moderation.PunishGUIListener;
 import moderation.ReportCommand;
 import moderation.UnbanCommand;
 import gameplay.ArenaManager;
-import gameplay.DuelCommand;
 import gameplay.ArenaBlockListener;
-import gameplay.DuelQueueManager;
-import gameplay.DuelManager;
-import gameplay.DuelGUIListener;
+import globalkit.GlobalKitManager;
 import cooldown.CooldownManager;
 import economy.EloManager;
 import cooldown.CooldownUpdater;
 import gameplay.GUIUpdater;
+import globalkit.KitCommand;
+import globalkit.KitGUIListener;
 import moderation.UnmuteCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -104,7 +103,7 @@ public class Main extends JavaPlugin implements Listener {
     private ReportManager reportManager;
     private MessageManager messageManager;
     private ArenaManager arenaManager;
-    private DuelQueueManager duelQueueManager;
+    private GlobalKitManager globalKitManager;
     private EloManager eloManager;
     private CooldownManager cooldownManager;
 
@@ -147,7 +146,7 @@ public class Main extends JavaPlugin implements Listener {
         reportManager = new ReportManager(this);
         messageManager = new MessageManager(this);
         arenaManager = new ArenaManager(this);
-        duelQueueManager = new DuelQueueManager(this);
+        globalKitManager = new GlobalKitManager(this);
         eloManager = new EloManager(this);
         cooldownManager = new CooldownManager();
 
@@ -163,8 +162,7 @@ public class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new PunishGUIListener(this), this);
         getServer().getPluginManager().registerEvents(new PunishmentListener(this), this);
         getServer().getPluginManager().registerEvents(new ArenaBlockListener(this), this);
-        getServer().getPluginManager().registerEvents(DuelManager.getInstance(this), this);
-        getServer().getPluginManager().registerEvents(new DuelGUIListener(this), this);
+        getServer().getPluginManager().registerEvents(new KitGUIListener(this), this);
 
         // Load kit ownership
         premiumKitManager.ensureKitOwnershipFileExists();
@@ -204,8 +202,7 @@ public class Main extends JavaPlugin implements Listener {
         getCommand("myreports").setExecutor(new MyReportsCommand(this));
         getCommand("unban").setExecutor(new UnbanCommand(this));
         getCommand("unmute").setExecutor(new UnmuteCommand(this));
-        getCommand("duel").setExecutor(new DuelCommand(this));
-        getCommand("arenalist").setExecutor(new gameplay.ArenaListCommand(this));
+        getCommand("kit").setExecutor(new KitCommand(this));
 
         // Register abilities
         registerEventsAbilities();
@@ -274,12 +271,8 @@ public class Main extends JavaPlugin implements Listener {
         return arenaManager;
     }
 
-    public DuelQueueManager getDuelQueueManager() {
-        return duelQueueManager;
-    }
-
-    public DuelManager getDuelManager() {
-        return DuelManager.getInstance(this);
+    public GlobalKitManager getGlobalKitManager() {
+        return globalKitManager;
     }
 
     public KitManager getKitManager() {
@@ -367,6 +360,7 @@ public class Main extends JavaPlugin implements Listener {
         saveCoinData();
         this.premiumKitManager.saveKitOwnership();
         scoreboardManager.saveData();
+        globalKitManager.saveKits();
 
 
 

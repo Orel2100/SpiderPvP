@@ -75,6 +75,32 @@ public class PremiumKitManager implements Listener {
         this.plugin = plugin;
     }
 
+    public void giveKit(Player player, String kitName) {
+        switch (kitName) {
+            case "Elite Warrior Kit":
+                giveEliteWarriorKit(player);
+                break;
+            case "Enderman Kit":
+                giveEndermanKit(player);
+                break;
+            case "Wither Kit":
+                giveWitherKit(player);
+                break;
+            case "Aero Kit":
+                giveAeroKit(player);
+                break;
+            case "Jedi Kit":
+                giveJediKit(player);
+                break;
+            case "Blaze Kit":
+                giveBlazeKit(player);
+                break;
+            case "Ice Mage Kit":
+                giveIceMageKit(player);
+                break;
+        }
+    }
+
     public void givePremiumKitSelector(Player player, int slot) {
         ItemStack kitSelector = new ItemStack(Material.EMERALD);
         ItemMeta meta = kitSelector.getItemMeta();

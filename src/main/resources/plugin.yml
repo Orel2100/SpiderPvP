@@ -73,18 +73,14 @@ commands:
     description: Unmute a player.
     usage: /<command> <player>
     permission: kitpvp.unmute
-  duel:
-    description: Join the 1v1 duel queue.
-    usage: /<command>
-    permission: kitpvp.duel
-  arenalist:
-    description: List all arenas and their status.
-    usage: /<command>
-    permission: prisoncore.arenalist
+  kit:
+    description: Select your global kit.
+    usage: /kit
+    permission: kitpvp.kit
 permissions:
-  prisoncore.arenalist:
-    description: Allows viewing the arena list.
-    default: op
+  kitpvp.kit:
+    description: Allows players to select a global kit.
+    default: true
   kitpvp.addcoins:
     description: Allows adding coins to players.
     default: op
@@ -124,9 +120,6 @@ permissions:
   kitpvp.unmute:
     description: Allows staff to unmute players.
     default: op
-  kitpvp.duel:
-    description: Allows players to join the duel queue.
-    default: true
   arena.setspawn:
     description: Allows setting arena spawn points.
     default: op

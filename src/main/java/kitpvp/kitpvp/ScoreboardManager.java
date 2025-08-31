@@ -31,7 +31,10 @@ public class ScoreboardManager {
         int deaths = this.playerDeaths.getOrDefault(player.getUniqueId(), 0);
         float kd = (deaths == 0) ? kills : (float) kills / deaths;
         int elo = this.plugin.getEloManager().getElo(player);
+        String kit = this.plugin.getGlobalKitManager().getKit(player);
 
+        Score kitScore = objective.getScore(ChatColor.GRAY + "Kit: " + kit);
+        kitScore.setScore(5);
         Score eloScore = objective.getScore(ChatColor.GRAY + "Elo: " + elo);
         eloScore.setScore(4);
         Score coinsScore = objective.getScore(ChatColor.GRAY + "Coins: " + coins);
