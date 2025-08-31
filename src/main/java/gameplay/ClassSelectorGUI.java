@@ -11,7 +11,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class ClassSelectorGUI {
@@ -30,7 +32,6 @@ public class ClassSelectorGUI {
     public void openClassSelector(Player player) {
         Inventory gui = Bukkit.createInventory(null, 27, "Class Selector");
 
-        // Fill with decorative panes
         ItemStack pane = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
         ItemMeta paneMeta = pane.getItemMeta();
         paneMeta.setDisplayName(" ");
@@ -39,7 +40,6 @@ public class ClassSelectorGUI {
             gui.setItem(i, pane);
         }
 
-        // Normal Classes item
         ItemStack normalClasses = new ItemStack(Material.IRON_SWORD);
         ItemMeta normalMeta = normalClasses.getItemMeta();
         normalMeta.setDisplayName(ChatColor.GREEN + "Normal Classes");
@@ -47,7 +47,6 @@ public class ClassSelectorGUI {
         normalClasses.setItemMeta(normalMeta);
         gui.setItem(11, normalClasses);
 
-        // Hero Classes item
         ItemStack heroClasses = new ItemStack(Material.DIAMOND_SWORD);
         ItemMeta heroMeta = heroClasses.getItemMeta();
         heroMeta.setDisplayName(ChatColor.AQUA + "Hero Classes");
@@ -55,7 +54,6 @@ public class ClassSelectorGUI {
         heroClasses.setItemMeta(heroMeta);
         gui.setItem(15, heroClasses);
 
-        // Current Class display
         String currentKit = plugin.getGlobalKitManager().getKit(player);
         ItemStack currentKitItem = new ItemStack(Material.PAPER);
         ItemMeta currentKitMeta = currentKitItem.getItemMeta();
@@ -81,8 +79,31 @@ public class ClassSelectorGUI {
         for (Map.Entry<String, ItemStack> entry : kits.entrySet()) {
             ItemStack kitItem = entry.getValue().clone();
             ItemMeta meta = kitItem.getItemMeta();
-            meta.setDisplayName(ChatColor.RESET + entry.getKey());
-            // You can add more lore here, like kit description or if it's owned (for hero kits)
+
+            // Set a clear display name
+            meta.setDisplayName(ChatColor.GREEN + entry.getKey());
+
+            List<String> lore = new ArrayList<>();
+            if(meta.getLore() != null) {
+                lore.addAll(meta.getLore()); // Keep existing lore if any
+            }
+            lore.add(""); // Spacer
+
+            if (type == ClassType.HERO) {
+                boolean hasKit = plugin.getPremiumKitManager().doesPlayerOwnKit(player, entry.getKey());
+                if (hasKit) {
+                    lore.add(ChatColor.YELLOW + "Click to select this kit!");
+                    meta.setDisplayName(ChatColor.GREEN + entry.getKey()); // Green for owned
+                } else {
+                    lore.add(ChatColor.RED + "LOCKED");
+                    lore.add(ChatColor.GRAY + "Purchase at the store!");
+                    meta.setDisplayName(ChatColor.RED + entry.getKey()); // Red for locked
+                }
+            } else {
+                lore.add(ChatColor.YELLOW + "Click to select this kit!");
+            }
+
+            meta.setLore(lore);
             kitItem.setItemMeta(meta);
             gui.setItem(slot++, kitItem);
         }

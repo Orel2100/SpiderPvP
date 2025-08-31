@@ -22,22 +22,27 @@ public class ClassSelectorGUIListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         String title = event.getView().getTitle();
+        if (!title.equals("Class Selector") && !title.equals("Normal Classes") && !title.equals("Hero Classes")) {
+            return;
+        }
+
+        event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
         ItemStack clickedItem = event.getCurrentItem();
 
+        if (clickedItem == null || clickedItem.getType() == Material.AIR || !clickedItem.hasItemMeta()) {
+            return;
+        }
+
         if (title.equals("Class Selector")) {
-            handleClassSelector(player, clickedItem, event);
-        } else if (title.equals("Normal Classes") || title.equals("Hero Classes")) {
-            handleClassList(player, clickedItem, event);
+            handleClassSelector(player, clickedItem);
+        } else {
+            handleClassList(player, clickedItem, title);
         }
     }
 
-    private void handleClassSelector(Player player, ItemStack clickedItem, InventoryClickEvent event) {
-        event.setCancelled(true);
-        if (clickedItem == null || !clickedItem.hasItemMeta()) return;
-
+    private void handleClassSelector(Player player, ItemStack clickedItem) {
         String displayName = clickedItem.getItemMeta().getDisplayName();
-
         if (displayName.contains("Normal Classes")) {
             classSelectorGUI.openClassesList(player, ClassSelectorGUI.ClassType.NORMAL);
         } else if (displayName.contains("Hero Classes")) {
@@ -45,17 +50,19 @@ public class ClassSelectorGUIListener implements Listener {
         }
     }
 
-    private void handleClassList(Player player, ItemStack clickedItem, InventoryClickEvent event) {
-        event.setCancelled(true);
-        if (clickedItem == null || !clickedItem.hasItemMeta()) return;
-
-        // A simple way to get the kit name is from the display name of the item.
+    private void handleClassList(Player player, ItemStack clickedItem, String title) {
         String kitName = ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName());
 
-        // For Hero kits, we might need to check if the player owns it first.
-        // This logic is simplified for now.
+        if (title.equals("Hero Classes")) {
+            if (!plugin.getPremiumKitManager().doesPlayerOwnKit(player, kitName)) {
+                player.sendMessage(ChatColor.RED + "You do not own this kit! Purchase it from the shop.");
+                player.closeInventory();
+                return;
+            }
+        }
+
         plugin.getGlobalKitManager().setKit(player, kitName);
-        player.sendMessage(ChatColor.GREEN + "You have selected the " + kitName + " kit as your global kit!");
+        player.sendMessage(ChatColor.GREEN + "You have selected the " + ChatColor.YELLOW + kitName + ChatColor.GREEN + " kit as your global kit!");
         player.closeInventory();
     }
 }
