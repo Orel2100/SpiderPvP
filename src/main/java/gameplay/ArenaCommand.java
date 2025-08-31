@@ -84,7 +84,24 @@ public class ArenaCommand implements CommandExecutor, Listener {
         player.teleport(spawnLocation);
         player.sendMessage(ChatColor.GREEN + "Teleported to the arena!");
 
+        equipGlobalKit(player);
+
         return true;
+    }
+
+    private void equipGlobalKit(Player player) {
+        String kitName = plugin.getGlobalKitManager().getKit(player);
+        if (kitName.equals("None")) {
+            player.getInventory().clear();
+            player.getInventory().addItem(new org.bukkit.inventory.ItemStack(org.bukkit.Material.IRON_SWORD));
+        } else {
+             boolean isPremium = plugin.getPremiumKitManager().getPremiumKits(player).containsKey(kitName);
+             if (isPremium) {
+                 plugin.getPremiumKitManager().giveKit(player, kitName);
+             } else {
+                 plugin.getKitManager().giveKit(player, kitName);
+             }
+        }
     }
 
     @EventHandler
