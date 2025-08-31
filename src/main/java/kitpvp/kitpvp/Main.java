@@ -22,7 +22,9 @@ import moderation.ReportsCommand;
 import moderation.MyReportsCommand;
 import moderation.PunishGUIListener;
 import moderation.ReportCommand;
+import duel.DuelCommand;
 import moderation.UnbanCommand;
+import duel.DuelManager;
 import gameplay.ArenaManager;
 import gameplay.ArenaBlockListener;
 import globalkit.GlobalKitManager;
@@ -106,6 +108,7 @@ public class Main extends JavaPlugin implements Listener {
     private GlobalKitManager globalKitManager;
     private EloManager eloManager;
     private CooldownManager cooldownManager;
+    private DuelManager duelManager;
 
 
 
@@ -149,6 +152,7 @@ public class Main extends JavaPlugin implements Listener {
         globalKitManager = new GlobalKitManager(this);
         eloManager = new EloManager(this);
         cooldownManager = new CooldownManager();
+        duelManager = new DuelManager(this);
 
         // Register events
         Bukkit.getPluginManager().registerEvents(this, this);
@@ -203,6 +207,7 @@ public class Main extends JavaPlugin implements Listener {
         getCommand("unban").setExecutor(new UnbanCommand(this));
         getCommand("unmute").setExecutor(new UnmuteCommand(this));
         getCommand("kit").setExecutor(new KitCommand(this));
+        getCommand("duel").setExecutor(new DuelCommand(this));
 
         // Register abilities
         registerEventsAbilities();
@@ -291,6 +296,10 @@ public class Main extends JavaPlugin implements Listener {
         return cooldownManager;
     }
 
+    public DuelManager getDuelManager() {
+        return duelManager;
+    }
+
     public PremiumKitManager getPremiumKitManager() {
         return premiumKitManager;
     }
@@ -309,6 +318,18 @@ public class Main extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
+
+        Duel duel = duelManager.getDuel(player);
+        if (duel != null) {
+            Player killer = player.getKiller();
+            // If there's no killer, the other player is the winner
+            Player winner = (killer != null) ? killer : Bukkit.getPlayer(duel.getOpponent(player));
+            if (winner != null) {
+                duelManager.endDuel(player, winner);
+            }
+            event.setDeathMessage(null); // Or a custom duel death message
+            return; // Stop further processing
+        }
 
         // Combat tag removal
         if (combatTasks.containsKey(player.getUniqueId())) {

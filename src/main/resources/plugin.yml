@@ -77,6 +77,9 @@ commands:
     description: Select your global kit.
     usage: /kit
     permission: kitpvp.kit
+  duel:
+    description: Challenge a player to a 1v1 duel.
+    usage: /<command> <player|accept|deny>
 permissions:
   kitpvp.kit:
     description: Allows players to select a global kit.
