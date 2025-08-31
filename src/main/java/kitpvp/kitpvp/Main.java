@@ -6,9 +6,9 @@ import java.util.*;
 import KitsManager.KitManager;
 import KitsManager.PremiumKitManager;
 import KitsManager.PremiumKitShop;
-import abilities.AbilityXPListener;
-import abilities.AbilityXPManager;
-import abilities.XPBarUpdater;
+import abilities.AbilityListener;
+import abilities.AbilityListener;
+import abilities.AbilityManager;
 import abilities.*;
 import economy.EconomyCommands;
 import economy.EconomyManager;
@@ -123,7 +123,7 @@ public class Main extends JavaPlugin implements Listener {
     private DuelManager duelManager;
     private ProfileGUI profileGUI;
     private ClassSelectorGUI classSelectorGUI;
-    private AbilityXPManager abilityXPManager;
+    private AbilityManager abilityManager;
 
 
 
@@ -170,7 +170,7 @@ public class Main extends JavaPlugin implements Listener {
         duelManager = new DuelManager(this);
         profileGUI = new ProfileGUI(this);
         classSelectorGUI = new ClassSelectorGUI(this);
-        abilityXPManager = new AbilityXPManager();
+        abilityManager = new AbilityManager(this);
 
         // Register events
         Bukkit.getPluginManager().registerEvents(this, this);
@@ -187,7 +187,7 @@ public class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new ArenaBlockListener(this), this);
         getServer().getPluginManager().registerEvents(new LobbyItemListener(this), this);
         getServer().getPluginManager().registerEvents(new ProfileGUIListener(), this);
-        getServer().getPluginManager().registerEvents(new AbilityXPListener(this), this);
+        getServer().getPluginManager().registerEvents(new AbilityListener(this), this);
 
         // Load kit ownership
         premiumKitManager.ensureKitOwnershipFileExists();
@@ -245,7 +245,6 @@ public class Main extends JavaPlugin implements Listener {
 
         new GUIUpdater(this).runTaskTimer(this, 0, 40);
         new CooldownUpdater(this).runTaskTimer(this, 0, 20);
-        new XPBarUpdater(this).runTaskTimer(this, 0, 5); // Run every 5 ticks for a smooth update
     }
 
 
@@ -334,8 +333,8 @@ public class Main extends JavaPlugin implements Listener {
         return classSelectorGUI;
     }
 
-    public AbilityXPManager getAbilityXPManager() {
-        return abilityXPManager;
+    public AbilityManager getAbilityManager() {
+        return abilityManager;
     }
 
     @EventHandler

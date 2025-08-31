@@ -6,14 +6,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-public class AbilityXPListener implements Listener {
+public class AbilityListener implements Listener {
 
     private final Main plugin;
-    private final AbilityXPManager abilityXPManager;
+    private final AbilityManager abilityManager;
 
-    public AbilityXPListener(Main plugin) {
+    public AbilityListener(Main plugin) {
         this.plugin = plugin;
-        this.abilityXPManager = plugin.getAbilityXPManager();
+        this.abilityManager = plugin.getAbilityManager();
     }
 
     @EventHandler
@@ -25,14 +25,14 @@ public class AbilityXPListener implements Listener {
         Player damager = (Player) event.getDamager();
         String kit = plugin.getGlobalKitManager().getKit(damager);
 
-        // Only grant XP if the ability is not already ready
-        if (abilityXPManager.isReady(damager)) {
+        // We use the player's level as their ability charge. If it's 100, it's full.
+        if (damager.getLevel() >= 100) {
             return;
         }
 
         if (kit.equalsIgnoreCase("archer")) {
             // Grant 5 XP per hit for Archer, requires 20 hits for a full charge
-            abilityXPManager.addXP(damager, 5);
+            abilityManager.addXP(damager, 5);
         }
         // TODO: Add cases for other kits here in the future
     }
