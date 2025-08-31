@@ -22,7 +22,7 @@ public class KitCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
-        new KitGUI(plugin, player).open();
+        plugin.getClassSelectorGUI().openClassSelector(player);
         return true;
     }
 }

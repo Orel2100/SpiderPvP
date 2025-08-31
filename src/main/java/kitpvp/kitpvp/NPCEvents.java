@@ -1,6 +1,5 @@
 package kitpvp.kitpvp;
 
-import KitsManager.KitManager;
 import KitsManager.PremiumKitShop;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 import org.bukkit.entity.Player;
@@ -9,11 +8,11 @@ import org.bukkit.event.Listener;
 
 public class NPCEvents implements Listener {
 
-    private final KitManager kitManager;
+    private final Main plugin;
     private final PremiumKitShop premiumKitShop;
 
-    public NPCEvents(KitManager kitManager, PremiumKitShop premiumKitShop) {
-        this.kitManager = kitManager;
+    public NPCEvents(Main plugin, PremiumKitShop premiumKitShop) {
+        this.plugin = plugin;
         this.premiumKitShop = premiumKitShop;
     }
 
@@ -21,7 +20,7 @@ public class NPCEvents implements Listener {
     public void onNPCRightClick(NPCRightClickEvent event) {
         if (event.getNPC().getName().equalsIgnoreCase("Kit Selector")) {
             Player player = event.getClicker();
-            kitManager.openKitSelectionMenu(player);
+            plugin.getClassSelectorGUI().openClassSelector(player);
         } else if (event.getNPC().getName().equalsIgnoreCase("Shop")) {
             Player player = event.getClicker();
             premiumKitShop.openShop(player);

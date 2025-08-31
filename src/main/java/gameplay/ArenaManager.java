@@ -12,6 +12,9 @@ import org.bukkit.Location;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 
+import java.util.Optional;
+import java.util.Set;
+
 public class ArenaManager {
 
     private final JavaPlugin plugin;
@@ -69,6 +72,42 @@ public class ArenaManager {
             arena.getDouble("specspawn.x"),
             arena.getDouble("specspawn.y"),
             arena.getDouble("specspawn.z")
+        );
+    }
+
+    public Optional<String> findAvailableArena() {
+        ConfigurationSection arenas = getConfig().getConfigurationSection("arenas");
+        if (arenas == null) {
+            return Optional.empty();
+        }
+        Set<String> arenaNames = arenas.getKeys(false);
+        return arenaNames.stream()
+                .filter(name -> getArenaStatus(name) == ArenaStatus.AVAILABLE)
+                .findFirst();
+    }
+
+    public Location getSpawn1(String arenaName) {
+        return getSpawnLocation(arenaName, "spawn1");
+    }
+
+    public Location getSpawn2(String arenaName) {
+        return getSpawnLocation(arenaName, "spawn2");
+    }
+
+    private Location getSpawnLocation(String arenaName, String spawnKey) {
+        ConfigurationSection spawnSection = getConfig().getConfigurationSection("arenas." + arenaName + "." + spawnKey);
+        if (spawnSection == null) return null;
+
+        String worldName = spawnSection.getString("world");
+        if (worldName == null || Bukkit.getWorld(worldName) == null) return null;
+
+        return new Location(
+                Bukkit.getWorld(worldName),
+                spawnSection.getDouble("x"),
+                spawnSection.getDouble("y"),
+                spawnSection.getDouble("z"),
+                (float) spawnSection.getDouble("yaw"),
+                (float) spawnSection.getDouble("pitch")
         );
     }
 }

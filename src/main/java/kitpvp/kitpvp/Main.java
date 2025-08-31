@@ -24,6 +24,7 @@ import moderation.PunishGUIListener;
 import moderation.ReportCommand;
 import duel.DuelCommand;
 import moderation.UnbanCommand;
+import duel.Duel;
 import duel.DuelManager;
 import gameplay.ArenaManager;
 import gameplay.ArenaBlockListener;
@@ -55,6 +56,10 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.server.PluginDisableEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.Material;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -148,7 +153,7 @@ public class Main extends JavaPlugin implements Listener {
         premiumKitManager = new PremiumKitManager(economyManager, this);
         kitManager = new KitManager(premiumKitManager, this);
         premiumKitShop = new PremiumKitShop(economyManager, premiumKitManager);
-        NPCEvents = new NPCEvents(kitManager, premiumKitShop);
+        NPCEvents = new NPCEvents(this, premiumKitShop);
         scoreboardManager = new ScoreboardManager(this);
         punishmentManager = new PunishmentManager(this);
         reportManager = new ReportManager(this);
@@ -429,7 +434,7 @@ public class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        this.kitManager.handleInventoryClick(event);
+        // this.kitManager.handleInventoryClick(event); // Removed as method was deleted
         this.premiumKitShop.handleInventoryClick(event);
     }
 

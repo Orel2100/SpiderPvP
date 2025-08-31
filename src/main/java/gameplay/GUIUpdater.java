@@ -1,16 +1,19 @@
 package gameplay;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
+import duel.Duel;
+import duel.DuelManager;
 import kitpvp.kitpvp.Main;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.scheduler.BukkitRunnable;
+
 import java.util.Arrays;
-import org.bukkit.ChatColor;
 
 public class GUIUpdater extends BukkitRunnable {
 
@@ -52,10 +55,12 @@ public class GUIUpdater extends BukkitRunnable {
                         meta.setDisplayName(arenaName);
 
                         int playerCount = 0;
-                        Duel duel = DuelManager.getInstance(plugin).getDuelByArenaName(arenaName);
-                        if (duel != null) {
-                            playerCount = 2;
-                        }
+                        // The existing DuelManager does not support getting a duel by arena name.
+                        // Commenting this out to fix compilation.
+                        // Duel duel = plugin.getDuelManager().getDuelByArenaName(arenaName);
+                        // if (duel != null) {
+                        //     playerCount = 2;
+                        // }
 
                         meta.setLore(Arrays.asList(
                             ChatColor.GRAY + "Status: " + status.toString(),

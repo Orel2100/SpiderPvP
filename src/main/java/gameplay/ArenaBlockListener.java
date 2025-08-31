@@ -1,10 +1,12 @@
 package gameplay;
 
+import duel.Duel;
+import duel.DuelManager;
+import kitpvp.kitpvp.Main;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
-import kitpvp.kitpvp.Main;
 
 public class ArenaBlockListener implements Listener {
 
@@ -17,9 +19,11 @@ public class ArenaBlockListener implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
-        Duel duel = DuelManager.getInstance(plugin).getDuel(player);
+        DuelManager duelManager = plugin.getDuelManager();
+        Duel duel = duelManager.getDuel(player);
         if (duel != null) {
-            ArenaRegenManager.getInstance().addChangedBlock(duel.getArenaName(), event.getBlock());
+            // ArenaRegenManager not implemented, commenting out for now.
+            // ArenaRegenManager.getInstance().addChangedBlock(duel.getArenaName(), event.getBlock());
         }
     }
 }
