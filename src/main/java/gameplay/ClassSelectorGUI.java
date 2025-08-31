@@ -24,6 +24,8 @@ public class ClassSelectorGUI {
     }
 
     private final Main plugin;
+    // Pre-defined slots for a nicer layout
+    private static final List<Integer> KIT_SLOTS = Arrays.asList(10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25);
 
     public ClassSelectorGUI(Main plugin) {
         this.plugin = plugin;
@@ -66,17 +68,15 @@ public class ClassSelectorGUI {
 
     public void openClassesList(Player player, ClassType type) {
         String title = (type == ClassType.NORMAL) ? "Normal Classes" : "Hero Classes";
-        Inventory gui = Bukkit.createInventory(null, 54, title);
+        Inventory gui = Bukkit.createInventory(null, 45, title); // 5 rows for better spacing
 
-        // GUI Redesign: Add filler panes
-        if(type == ClassType.HERO) {
-            ItemStack pane = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
-            ItemMeta paneMeta = pane.getItemMeta();
-            paneMeta.setDisplayName(" ");
-            pane.setItemMeta(paneMeta);
-            for (int i = 0; i < gui.getSize(); i++) {
-                gui.setItem(i, pane);
-            }
+        // Use dark glass panes for the background
+        ItemStack pane = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+        ItemMeta paneMeta = pane.getItemMeta();
+        paneMeta.setDisplayName(" ");
+        pane.setItemMeta(paneMeta);
+        for (int i = 0; i < gui.getSize(); i++) {
+            gui.setItem(i, pane);
         }
 
         Map<String, ItemStack> kits;
@@ -86,26 +86,17 @@ public class ClassSelectorGUI {
             kits = plugin.getPremiumKitManager().getPremiumKits(player);
         }
 
-        int slot = 0;
-        if(type == ClassType.HERO) {
-             slot = 10; // Start in a nicer position for hero kits
-        }
-
+        int slotIndex = 0;
         for (Map.Entry<String, ItemStack> entry : kits.entrySet()) {
-            if (slot == 17 || slot == 26 || slot == 35 || slot == 44) {
-                 slot += 2; // Skip to next row for hero kits
-            }
+            if (slotIndex >= KIT_SLOTS.size()) break; // Stop if we run out of pre-defined slots
 
             ItemStack kitItem = entry.getValue().clone();
             ItemMeta meta = kitItem.getItemMeta();
 
-            // NPE Fix: Check if meta is null, which can happen with Material.AIR
             if (meta == null) {
                 plugin.getLogger().warning("Could not create display item for kit '" + entry.getKey() + "' because its material is invalid or AIR.");
-                continue; // Skip this invalid kit
+                continue;
             }
-
-            meta.setDisplayName(ChatColor.GREEN + entry.getKey());
 
             List<String> lore = new ArrayList<>();
             if(meta.hasLore()) {
@@ -116,20 +107,22 @@ public class ClassSelectorGUI {
             if (type == ClassType.HERO) {
                 boolean hasKit = plugin.getPremiumKitManager().doesPlayerOwnKit(player, entry.getKey());
                 if (hasKit) {
-                    lore.add(ChatColor.YELLOW + "Click to select this kit!");
                     meta.setDisplayName(ChatColor.GREEN + entry.getKey());
+                    lore.add(ChatColor.YELLOW + "Click to select this kit!");
                 } else {
+                    meta.setDisplayName(ChatColor.RED + entry.getKey());
                     lore.add(ChatColor.RED + "LOCKED");
                     lore.add(ChatColor.GRAY + "Purchase at the store!");
-                    meta.setDisplayName(ChatColor.RED + entry.getKey());
                 }
             } else {
+                meta.setDisplayName(ChatColor.GREEN + entry.getKey());
                 lore.add(ChatColor.YELLOW + "Click to select this kit!");
             }
 
             meta.setLore(lore);
             kitItem.setItemMeta(meta);
-            gui.setItem(slot++, kitItem);
+            gui.setItem(KIT_SLOTS.get(slotIndex), kitItem);
+            slotIndex++;
         }
 
         player.openInventory(gui);
