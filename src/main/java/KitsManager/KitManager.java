@@ -32,7 +32,7 @@ public class KitManager {
     }
 
     public void giveKitSelectorToSlot(Player player, int slot) {
-        ItemStack kitSelector = new ItemStack(Material.NETHER_STAR);
+        ItemStack kitSelector = new ItemStack(Material.DIAMOND_SWORD);
         ItemMeta meta = kitSelector.getItemMeta();
         meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&6Kit Selector"));
         kitSelector.setItemMeta(meta);
@@ -68,7 +68,7 @@ public class KitManager {
     public void handleKitSelection(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         ItemStack item = player.getInventory().getItemInMainHand();
-        if (item.getType() == Material.NETHER_STAR ){
+        if (item.getType() == Material.DIAMOND_SWORD ){
             openKitSelectionMenu(player);
         }
     }

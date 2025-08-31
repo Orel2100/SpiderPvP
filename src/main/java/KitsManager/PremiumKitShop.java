@@ -72,12 +72,12 @@ public class PremiumKitShop implements Listener {
     }
 
     @EventHandler
-    public void onPlayerRightClickWithSign(PlayerInteractEvent event) {
+    public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK)
             return;
         Player player = event.getPlayer();
         ItemStack itemInHand = player.getInventory().getItemInMainHand();
-        if (itemInHand.getType() == Material.OAK_SIGN)
+        if (itemInHand.getType() == Material.EMERALD)
             openShop(player);
     }
 
@@ -178,7 +178,7 @@ public class PremiumKitShop implements Listener {
     }
 
     public void giveShopItemToSlot(Player player, int slot) {
-        ItemStack kitSelector = new ItemStack(Material.OAK_SIGN);
+        ItemStack kitSelector = new ItemStack(Material.EMERALD);
         ItemMeta meta = kitSelector.getItemMeta();
         meta.setDisplayName(ChatColor.GREEN + "SHOP");
         kitSelector.setItemMeta(meta);
