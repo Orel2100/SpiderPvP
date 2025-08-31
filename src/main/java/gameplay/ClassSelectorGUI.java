@@ -68,6 +68,17 @@ public class ClassSelectorGUI {
         String title = (type == ClassType.NORMAL) ? "Normal Classes" : "Hero Classes";
         Inventory gui = Bukkit.createInventory(null, 54, title);
 
+        // GUI Redesign: Add filler panes
+        if(type == ClassType.HERO) {
+            ItemStack pane = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+            ItemMeta paneMeta = pane.getItemMeta();
+            paneMeta.setDisplayName(" ");
+            pane.setItemMeta(paneMeta);
+            for (int i = 0; i < gui.getSize(); i++) {
+                gui.setItem(i, pane);
+            }
+        }
+
         Map<String, ItemStack> kits;
         if (type == ClassType.NORMAL) {
             kits = plugin.getKitManager().getKits();
@@ -76,28 +87,41 @@ public class ClassSelectorGUI {
         }
 
         int slot = 0;
+        if(type == ClassType.HERO) {
+             slot = 10; // Start in a nicer position for hero kits
+        }
+
         for (Map.Entry<String, ItemStack> entry : kits.entrySet()) {
+            if (slot == 17 || slot == 26 || slot == 35 || slot == 44) {
+                 slot += 2; // Skip to next row for hero kits
+            }
+
             ItemStack kitItem = entry.getValue().clone();
             ItemMeta meta = kitItem.getItemMeta();
 
-            // Set a clear display name
+            // NPE Fix: Check if meta is null, which can happen with Material.AIR
+            if (meta == null) {
+                plugin.getLogger().warning("Could not create display item for kit '" + entry.getKey() + "' because its material is invalid or AIR.");
+                continue; // Skip this invalid kit
+            }
+
             meta.setDisplayName(ChatColor.GREEN + entry.getKey());
 
             List<String> lore = new ArrayList<>();
-            if(meta.getLore() != null) {
-                lore.addAll(meta.getLore()); // Keep existing lore if any
+            if(meta.hasLore()) {
+                lore.addAll(meta.getLore());
             }
-            lore.add(""); // Spacer
+            lore.add("");
 
             if (type == ClassType.HERO) {
                 boolean hasKit = plugin.getPremiumKitManager().doesPlayerOwnKit(player, entry.getKey());
                 if (hasKit) {
                     lore.add(ChatColor.YELLOW + "Click to select this kit!");
-                    meta.setDisplayName(ChatColor.GREEN + entry.getKey()); // Green for owned
+                    meta.setDisplayName(ChatColor.GREEN + entry.getKey());
                 } else {
                     lore.add(ChatColor.RED + "LOCKED");
                     lore.add(ChatColor.GRAY + "Purchase at the store!");
-                    meta.setDisplayName(ChatColor.RED + entry.getKey()); // Red for locked
+                    meta.setDisplayName(ChatColor.RED + entry.getKey());
                 }
             } else {
                 lore.add(ChatColor.YELLOW + "Click to select this kit!");
