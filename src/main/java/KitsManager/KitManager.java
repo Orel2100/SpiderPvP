@@ -1,5 +1,6 @@
 package KitsManager;
 
+import kitpvp.kitpvp.Main;
 import kitpvp.kitpvp.NPCEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -22,76 +23,30 @@ import java.util.Map;
 
 public class KitManager {
     private final String KIT_SELECTOR_TITLE = "Select Your Kit";
+    private final Main plugin;
     private final PremiumKitManager premiumKitManager;
     private final FileConfiguration kitsConfig;
 
-    public KitManager(PremiumKitManager premiumKitManager, File dataFolder) {
+    public KitManager(PremiumKitManager premiumKitManager, Main plugin) {
         this.premiumKitManager = premiumKitManager;
-        File kitsFile = new File(dataFolder, "Regularkits.yml");
+        this.plugin = plugin;
+        File kitsFile = new File(plugin.getDataFolder(), "Regularkits.yml");
         this.kitsConfig = YamlConfiguration.loadConfiguration(kitsFile);
     }
 
     public void giveKitSelectorToSlot(Player player, int slot) {
-        ItemStack kitSelector = new ItemStack(Material.DIAMOND_SWORD);
+        ItemStack kitSelector = new ItemStack(Material.COMMAND_BLOCK);
         ItemMeta meta = kitSelector.getItemMeta();
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&6Kit Selector"));
+        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&aClass Selector &7(Right Click)"));
         kitSelector.setItemMeta(meta);
         player.getInventory().setItem(slot, kitSelector);
     }
 
-    public void handleInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player)) return;
-        Player player = (Player) event.getWhoClicked();
-        if (!event.getView().getTitle().equals(KIT_SELECTOR_TITLE)) return;
-        event.setCancelled(true);
-        if (event.getCurrentItem() == null) return;
-
-        switch (event.getCurrentItem().getType()) {
-            case IRON_SWORD:
-                giveKit(player, "warrior");
-                player.closeInventory();
-                break;
-            case BOW:
-                giveKit(player, "archer");
-                player.closeInventory();
-                break;
-            case DIAMOND_AXE:
-                giveKit(player, "berserker");
-                player.closeInventory();
-                break;
-            case EMERALD:
-                this.premiumKitManager.openPremiumKitSelectionMenu(player);
-                break;
-        }
-    }
-
     public void handleKitSelection(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        ItemStack item = player.getInventory().getItemInMainHand();
-        if (item.getType() == Material.DIAMOND_SWORD ){
-            openKitSelectionMenu(player);
+        if (player.getInventory().getItemInMainHand() != null && player.getInventory().getItemInMainHand().getType() == Material.COMMAND_BLOCK) {
+            plugin.getClassSelectorGUI().openClassSelector(player);
         }
-    }
-
-    public void openKitSelectionMenu(Player player) {
-        Inventory kitMenu = Bukkit.createInventory(null, 27, KIT_SELECTOR_TITLE);
-        for (int i = 0; i < 27; i++) {
-            if (i != 10 && i != 13 && i != 16)
-                kitMenu.setItem(i, new ItemStack(Material.BLACK_STAINED_GLASS_PANE));
-        }
-        createKitMenuItem(kitMenu, 10, Material.IRON_SWORD, "Warrior Kit");
-        createKitMenuItem(kitMenu, 13, Material.BOW, "Archer Kit");
-        createKitMenuItem(kitMenu, 16, Material.DIAMOND_AXE, "Berserker Kit");
-        createKitMenuItem(kitMenu, 19, Material.EMERALD, "Premium Kits");
-        player.openInventory(kitMenu);
-    }
-
-    private void createKitMenuItem(Inventory inventory, int slot, Material material, String displayName) {
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
-        item.setItemMeta(meta);
-        inventory.setItem(slot, item);
     }
 
     public void giveKit(Player player, String kitName) {

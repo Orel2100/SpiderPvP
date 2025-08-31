@@ -27,13 +27,16 @@ import moderation.UnbanCommand;
 import duel.DuelManager;
 import gameplay.ArenaManager;
 import gameplay.ArenaBlockListener;
+import gameplay.LobbyItemListener;
+import gameplay.ClassSelectorGUI;
+import gameplay.ClassSelectorGUIListener;
+import gameplay.ProfileGUI;
 import globalkit.GlobalKitManager;
 import cooldown.CooldownManager;
 import economy.EloManager;
 import cooldown.CooldownUpdater;
 import gameplay.GUIUpdater;
 import globalkit.KitCommand;
-import globalkit.KitGUIListener;
 import moderation.UnmuteCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -109,6 +112,8 @@ public class Main extends JavaPlugin implements Listener {
     private EloManager eloManager;
     private CooldownManager cooldownManager;
     private DuelManager duelManager;
+    private ProfileGUI profileGUI;
+    private ClassSelectorGUI classSelectorGUI;
 
 
 
@@ -141,7 +146,7 @@ public class Main extends JavaPlugin implements Listener {
         // Initialize other managers and handlers
         economyManager = new EconomyManager(this);
         premiumKitManager = new PremiumKitManager(economyManager, this);
-        kitManager = new KitManager(premiumKitManager, this.getDataFolder());
+        kitManager = new KitManager(premiumKitManager, this);
         premiumKitShop = new PremiumKitShop(economyManager, premiumKitManager);
         NPCEvents = new NPCEvents(kitManager, premiumKitShop);
         scoreboardManager = new ScoreboardManager(this);
@@ -153,9 +158,12 @@ public class Main extends JavaPlugin implements Listener {
         eloManager = new EloManager(this);
         cooldownManager = new CooldownManager();
         duelManager = new DuelManager(this);
+        profileGUI = new ProfileGUI(this);
+        classSelectorGUI = new ClassSelectorGUI(this);
 
         // Register events
         Bukkit.getPluginManager().registerEvents(this, this);
+        getServer().getPluginManager().registerEvents(new ClassSelectorGUIListener(this, classSelectorGUI), this);
         Bukkit.getPluginManager().registerEvents(new Events(), this);
         Bukkit.getPluginManager().registerEvents(NPCEvents, this);
         Bukkit.getPluginManager().registerEvents(premiumKitManager, this);
@@ -166,7 +174,7 @@ public class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new PunishGUIListener(this), this);
         getServer().getPluginManager().registerEvents(new PunishmentListener(this), this);
         getServer().getPluginManager().registerEvents(new ArenaBlockListener(this), this);
-        getServer().getPluginManager().registerEvents(new KitGUIListener(this), this);
+        getServer().getPluginManager().registerEvents(new LobbyItemListener(this), this);
 
         // Load kit ownership
         premiumKitManager.ensureKitOwnershipFileExists();
@@ -304,12 +312,19 @@ public class Main extends JavaPlugin implements Listener {
         return premiumKitManager;
     }
 
+    public ProfileGUI getProfileGUI() {
+        return profileGUI;
+    }
+
+    public ClassSelectorGUI getClassSelectorGUI() {
+        return classSelectorGUI;
+    }
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
         p.getPlayer().getInventory().clear();
-        this.kitManager.giveKitSelectorToSlot(p, 4);
-        this.premiumKitShop.giveShopItemToSlot(p, 0);
+        giveLobbyItems(p);
         this.scoreboardManager.updateScoreboard(p);
         e.setJoinMessage(ChatColor.GRAY + "[" + ChatColor.GREEN + "+" + ChatColor.GRAY + "] " + ChatColor.GRAY + p.getDisplayName());
     }
@@ -427,8 +442,42 @@ public class Main extends JavaPlugin implements Listener {
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent e) {
         Player p = e.getPlayer();
-        this.kitManager.giveKitSelectorToSlot(p, 4);
-        this.premiumKitShop.giveShopItemToSlot(p, 0);
+        // Use a short delay to prevent items being cleared by other plugins on respawn
+        Bukkit.getScheduler().runTaskLater(this, () -> giveLobbyItems(p), 1L);
+    }
+
+    private void giveLobbyItems(Player p) {
+        p.getInventory().clear();
+
+        // Slot 0: Game Menu (Compass)
+        ItemStack gameMenu = new ItemStack(Material.COMPASS);
+        ItemMeta gameMenuMeta = gameMenu.getItemMeta();
+        gameMenuMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&aGame Menu &7(Right Click)"));
+        gameMenu.setItemMeta(gameMenuMeta);
+        p.getInventory().setItem(0, gameMenu);
+
+        // Slot 1: My Profile (Player Skull)
+        ItemStack profile = new ItemStack(Material.PLAYER_HEAD, 1);
+        SkullMeta profileMeta = (SkullMeta) profile.getItemMeta();
+        profileMeta.setOwningPlayer(p);
+        profileMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&aMy Profile &7(Right Click)"));
+        profile.setItemMeta(profileMeta);
+        p.getInventory().setItem(1, profile);
+
+        // Slot 4: PLAY! (Cake)
+        ItemStack playItem = new ItemStack(Material.CAKE);
+        ItemMeta playMeta = playItem.getItemMeta();
+        playMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&cPLAY! &7(Right Click)"));
+        playItem.setItemMeta(playMeta);
+        p.getInventory().setItem(4, playItem);
+
+        // Slot 7: Shop (Emerald)
+        this.premiumKitShop.giveShopItemToSlot(p, 7);
+
+        // Slot 8: Class Selector (Command Block)
+        this.kitManager.giveKitSelectorToSlot(p, 8);
+
+        p.updateInventory();
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -470,9 +519,7 @@ public class Main extends JavaPlugin implements Listener {
             if (player.hasPermission("essentials.spawn")) {
                 player.teleport(player.getWorld().getSpawnLocation());
                 player.sendMessage(ChatColor.GREEN + "Teleported to spawn!");
-                player.getInventory().clear();
-                this.kitManager.giveKitSelectorToSlot(player, 4);
-                this.premiumKitShop.giveShopItemToSlot(player, 0);
+                giveLobbyItems(player);
             } else {
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command!");
             }

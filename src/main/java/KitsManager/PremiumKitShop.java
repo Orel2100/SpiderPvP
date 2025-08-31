@@ -73,12 +73,14 @@ public class PremiumKitShop implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK)
-            return;
-        Player player = event.getPlayer();
-        ItemStack itemInHand = player.getInventory().getItemInMainHand();
-        if (itemInHand.getType() == Material.EMERALD)
-            openShop(player);
+        if (event.getAction().name().contains("RIGHT")) {
+            Player player = event.getPlayer();
+            if (player.getInventory().getItemInMainHand() != null && player.getInventory().getItemInMainHand().hasItemMeta()) {
+                if (player.getInventory().getItemInMainHand().getItemMeta().getDisplayName().contains("Shop")) {
+                    openShop(player);
+                }
+            }
+        }
     }
 
     public void openShop(Player player) {
@@ -178,10 +180,10 @@ public class PremiumKitShop implements Listener {
     }
 
     public void giveShopItemToSlot(Player player, int slot) {
-        ItemStack kitSelector = new ItemStack(Material.EMERALD);
-        ItemMeta meta = kitSelector.getItemMeta();
-        meta.setDisplayName(ChatColor.GREEN + "SHOP");
-        kitSelector.setItemMeta(meta);
-        player.getInventory().setItem(slot, kitSelector);
+        ItemStack shopItem = new ItemStack(Material.EMERALD);
+        ItemMeta meta = shopItem.getItemMeta();
+        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&aShop &7(Right Click)"));
+        shopItem.setItemMeta(meta);
+        player.getInventory().setItem(slot, shopItem);
     }
 }
